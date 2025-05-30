@@ -1,5 +1,5 @@
 
-import { Home, Layers, BarChart3, Settings, HelpCircle, Zap, Users } from 'lucide-react';
+import { Home, Layers, HelpCircle } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export function Sidebar() {
@@ -8,13 +8,9 @@ export function Sidebar() {
   const menuItems = [
     { name: 'Dashboard', icon: Home, path: '/' },
     { name: 'Ethereum', icon: Layers, path: '/ethereum' },
-    { name: 'Analytics', icon: BarChart3, path: '/analytics' },
-    { name: 'Validators', icon: Users, path: '/validators' },
-    { name: 'Portfolio', icon: Zap, path: '/portfolio' },
   ];
 
   const bottomMenuItems = [
-    { name: 'Settings', icon: Settings, path: '/settings' },
     { name: 'Help', icon: HelpCircle, path: '/help' },
   ];
 

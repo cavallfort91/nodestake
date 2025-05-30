@@ -4,7 +4,8 @@ import { Header } from '@/components/Header';
 import { StatCard } from '@/components/StatCard';
 import { StakingPool } from '@/components/StakingPool';
 import { RecentActivity } from '@/components/RecentActivity';
-import { Wallet, TrendingUp, DollarSign, Users, BarChart3, Zap } from 'lucide-react';
+import { EthPriceChart } from '@/components/EthPriceChart';
+import { Wallet, TrendingUp, DollarSign, Users, Zap } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -91,22 +92,17 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Performance Chart Placeholder */}
+              {/* Performance Chart with ETH Price */}
               <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-white font-semibold">Performance Overview</h3>
+                  <h3 className="text-white font-semibold">Performance Overview - ETH Price</h3>
                   <div className="flex space-x-2">
                     <button className="text-everstake-purple-primary text-sm">7D</button>
                     <button className="text-everstake-gray-light text-sm">30D</button>
                     <button className="text-everstake-gray-light text-sm">1Y</button>
                   </div>
                 </div>
-                <div className="h-48 bg-everstake-bg-primary/50 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <BarChart3 className="text-everstake-purple-primary mx-auto mb-2" size={32} />
-                    <p className="text-everstake-gray-light text-sm">Chart visualization coming soon</p>
-                  </div>
-                </div>
+                <EthPriceChart />
               </div>
             </div>
 
