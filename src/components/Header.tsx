@@ -1,7 +1,8 @@
 
-import { Bell, Search, ChevronDown, Wallet } from 'lucide-react';
+import { Bell, Search, ChevronDown, Wallet, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useState, useEffect } from 'react';
 
 export function Header() {
@@ -49,6 +50,12 @@ export function Header() {
     }
   };
 
+  const disconnectWallet = () => {
+    setWalletAddress('');
+    setIsConnected(false);
+    setStatus('Disconnected');
+  };
+
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
@@ -85,15 +92,34 @@ export function Header() {
           </Button>
 
           {/* Wallet Connection */}
-          <Button 
-            onClick={connectWallet}
-            className="bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center space-x-2"
-          >
-            <Wallet size={16} />
-            <span>
-              {isConnected ? formatAddress(walletAddress) : 'Connect Wallet'}
-            </span>
-          </Button>
+          {isConnected ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center space-x-2">
+                  <Wallet size={16} />
+                  <span>{formatAddress(walletAddress)}</span>
+                  <ChevronDown size={14} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-everstake-bg-card border-everstake-gray-dark/30">
+                <DropdownMenuItem 
+                  onClick={disconnectWallet}
+                  className="text-white hover:bg-everstake-bg-secondary cursor-pointer flex items-center space-x-2"
+                >
+                  <LogOut size={16} />
+                  <span>Disconnect</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button 
+              onClick={connectWallet}
+              className="bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center space-x-2"
+            >
+              <Wallet size={16} />
+              <span>Connect Wallet</span>
+            </Button>
+          )}
 
           {/* Profile */}
           <div className="flex items-center space-x-2">
