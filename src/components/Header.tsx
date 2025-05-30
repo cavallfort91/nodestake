@@ -2,8 +2,57 @@
 import { Bell, Search, ChevronDown, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
 
 export function Header() {
+  const [walletAddress, setWalletAddress] = useState<string>('');
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [status, setStatus] = useState<string>('Not connected');
+
+  useEffect(() => {
+    // Check if wallet is already connected
+    checkConnection();
+  }, []);
+
+  const checkConnection = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (accounts.length > 0) {
+          const address = accounts[0];
+          setWalletAddress(address);
+          setIsConnected(true);
+          setStatus('Connected');
+        }
+      } catch (error) {
+        console.error('Error checking connection:', error);
+      }
+    }
+  };
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum === "undefined") {
+      setStatus("⚠️ MetaMask is not installed.");
+      return;
+    }
+
+    try {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      const address = accounts[0];
+      setWalletAddress(address);
+      setIsConnected(true);
+      setStatus("✅ Connected");
+    } catch (error) {
+      console.error(error);
+      setStatus("❌ Failed to connect wallet.");
+      setIsConnected(false);
+    }
+  };
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
   return (
     <header className="bg-everstake-bg-secondary border-b border-everstake-gray-dark/20 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -36,9 +85,14 @@ export function Header() {
           </Button>
 
           {/* Wallet Connection */}
-          <Button className="bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center space-x-2">
+          <Button 
+            onClick={connectWallet}
+            className="bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center space-x-2"
+          >
             <Wallet size={16} />
-            <span>0x1234...5678</span>
+            <span>
+              {isConnected ? formatAddress(walletAddress) : 'Connect Wallet'}
+            </span>
           </Button>
 
           {/* Profile */}
@@ -47,6 +101,13 @@ export function Header() {
           </div>
         </div>
       </div>
+
+      {/* Status indicator (optional, can be removed) */}
+      {status !== 'Connected' && status !== 'Not connected' && (
+        <div className="mt-2 text-sm text-everstake-gray-light">
+          {status}
+        </div>
+      )}
     </header>
   );
 }
