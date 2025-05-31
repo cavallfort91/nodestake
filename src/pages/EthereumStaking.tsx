@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { StakeWidget } from '@/components/StakeWidget';
@@ -7,6 +8,35 @@ import { StakingInfo } from '@/components/StakingInfo';
 import { Zap, Shield, TrendingUp, Award } from 'lucide-react';
 
 const EthereumStaking = () => {
+  const [selectedValidator, setSelectedValidator] = useState(1);
+
+  const validators = [
+    {
+      id: 1,
+      name: "NodeStake Validator #1",
+      fee: "5%",
+      apy: "4.2%",
+      staked: "1,247 ETH",
+      uptime: "99.8%"
+    },
+    {
+      id: 2,
+      name: "NodeStake Validator #2",
+      fee: "5%",
+      apy: "4.1%",
+      staked: "1,189 ETH",
+      uptime: "99.9%"
+    },
+    {
+      id: 3,
+      name: "NodeStake Validator #3",
+      fee: "5%",
+      apy: "4.3%",
+      staked: "1,056 ETH",
+      uptime: "99.7%"
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-everstake-bg-primary flex w-full">
       <Sidebar />
@@ -39,30 +69,18 @@ const EthereumStaking = () => {
               <div>
                 <h2 className="text-white text-xl font-semibold mb-4">Select Validator</h2>
                 <div className="space-y-4">
-                  <ValidatorCard
-                    name="NodeStake Validator #1"
-                    fee="5%"
-                    apy="4.2%"
-                    staked="1,247 ETH"
-                    uptime="99.8%"
-                    isSelected={true}
-                  />
-                  <ValidatorCard
-                    name="NodeStake Validator #2"
-                    fee="5%"
-                    apy="4.1%"
-                    staked="1,189 ETH"
-                    uptime="99.9%"
-                    isSelected={false}
-                  />
-                  <ValidatorCard
-                    name="NodeStake Validator #3"
-                    fee="5%"
-                    apy="4.3%"
-                    staked="1,056 ETH"
-                    uptime="99.7%"
-                    isSelected={false}
-                  />
+                  {validators.map((validator) => (
+                    <div key={validator.id} onClick={() => setSelectedValidator(validator.id)}>
+                      <ValidatorCard
+                        name={validator.name}
+                        fee={validator.fee}
+                        apy={validator.apy}
+                        staked={validator.staked}
+                        uptime={validator.uptime}
+                        isSelected={selectedValidator === validator.id}
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
