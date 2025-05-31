@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -149,12 +148,6 @@ export function StakeWidget() {
           <div className="flex justify-between text-sm">
             <span className="text-everstake-gray-light">Unstaking Period</span>
             <span className="text-white">~7 days</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-everstake-gray-light">Contract Address</span>
-            <span className="text-white text-xs font-mono">
-              {STAKING_CONTRACT_ADDRESS.slice(0, 6)}...{STAKING_CONTRACT_ADDRESS.slice(-4)}
-            </span>
           </div>
         </div>
 

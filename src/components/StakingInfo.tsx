@@ -70,20 +70,6 @@ export function StakingInfo() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Risk Disclaimer */}
-      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
-        <div className="flex items-start space-x-2">
-          <Info size={16} className="text-yellow-400 mt-0.5 flex-shrink-0" />
-          <div>
-            <h4 className="text-yellow-400 font-medium text-sm mb-1">Important Notice</h4>
-            <p className="text-yellow-300/80 text-xs">
-              Staked ETH will be locked until the Shanghai upgrade enables withdrawals. 
-              Staking rewards are not guaranteed and may fluctuate.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
