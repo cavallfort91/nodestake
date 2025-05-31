@@ -63,28 +63,28 @@ const Index = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <StakingPool
                     name="Ethereum 2.0"
-                    validator="Everstake Validator #1"
+                    validator="NodeStake Validator #1"
                     apy="4.2%"
                     staked="32.0 ETH"
                     status="active"
                   />
                   <StakingPool
                     name="Ethereum 2.0"
-                    validator="Everstake Validator #2"
+                    validator="NodeStake Validator #2"
                     apy="4.1%"
                     staked="32.0 ETH"
                     status="active"
                   />
                   <StakingPool
                     name="Ethereum 2.0"
-                    validator="Everstake Validator #3"
+                    validator="NodeStake Validator #3"
                     apy="4.3%"
                     staked="32.0 ETH"
                     status="pending"
                   />
                   <StakingPool
                     name="Ethereum 2.0"
-                    validator="Everstake Validator #4"
+                    validator="NodeStake Validator #4"
                     apy="4.0%"
                     staked="32.5 ETH"
                     status="active"

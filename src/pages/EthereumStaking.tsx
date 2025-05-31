@@ -40,7 +40,7 @@ const EthereumStaking = () => {
                 <h2 className="text-white text-xl font-semibold mb-4">Select Validator</h2>
                 <div className="space-y-4">
                   <ValidatorCard
-                    name="Everstake Validator #1"
+                    name="NodeStake Validator #1"
                     fee="5%"
                     apy="4.2%"
                     staked="1,247 ETH"
@@ -48,7 +48,7 @@ const EthereumStaking = () => {
                     isSelected={true}
                   />
                   <ValidatorCard
-                    name="Everstake Validator #2"
+                    name="NodeStake Validator #2"
                     fee="5%"
                     apy="4.1%"
                     staked="1,189 ETH"
@@ -56,7 +56,7 @@ const EthereumStaking = () => {
                     isSelected={false}
                   />
                   <ValidatorCard
-                    name="Everstake Validator #3"
+                    name="NodeStake Validator #3"
                     fee="5%"
                     apy="4.3%"
                     staked="1,056 ETH"
@@ -75,7 +75,7 @@ const EthereumStaking = () => {
 
           {/* Features Section */}
           <div className="mt-12">
-            <h2 className="text-white text-2xl font-bold mb-6">Why Stake with Everstake?</h2>
+            <h2 className="text-white text-2xl font-bold mb-6">Why Stake with NodeStake?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-6 text-center">
                 <div className="p-3 bg-everstake-purple-primary/10 rounded-full inline-block mb-4">

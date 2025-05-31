@@ -1,3 +1,4 @@
+
 import { Home, Layers, HelpCircle } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -19,9 +20,9 @@ export function Sidebar() {
       <div className="p-6 border-b border-everstake-gray-dark/20">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-br from-everstake-purple-primary to-everstake-purple-secondary rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">E</span>
+            <span className="text-white text-sm font-bold">N</span>
           </div>
-          <span className="text-white text-xl font-bold">Everstake</span>
+          <span className="text-white text-xl font-bold">NodeStake</span>
         </div>
       </div>
 
