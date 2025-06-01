@@ -1,3 +1,4 @@
+
 export interface WalletInfo {
   name: string;
   icon: string;
@@ -32,6 +33,16 @@ export const connectTrustWallet = async () => {
   return { address: accounts[0], provider: window.ethereum };
 };
 
+export const connectLedger = async () => {
+  // Ledger Live se conecta a través de window.ethereum cuando está instalado
+  if (typeof window.ethereum === "undefined" || !window.ethereum.isLedgerConnect) {
+    throw new Error("Ledger Live is not installed or connected");
+  }
+  
+  const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+  return { address: accounts[0], provider: window.ethereum };
+};
+
 export const wallets: WalletInfo[] = [
   {
     name: "MetaMask",
@@ -39,7 +50,8 @@ export const wallets: WalletInfo[] = [
     connector: connectMetaMask,
     isInstalled: () => typeof window.ethereum !== "undefined" && 
                        !window.ethereum.isCoinbaseWallet && 
-                       !window.ethereum.isTrust
+                       !window.ethereum.isTrust &&
+                       !window.ethereum.isLedgerConnect
   },
   {
     name: "Coinbase Wallet",
@@ -54,6 +66,13 @@ export const wallets: WalletInfo[] = [
     connector: connectTrustWallet,
     isInstalled: () => typeof window.ethereum !== "undefined" && 
                        Boolean(window.ethereum.isTrust)
+  },
+  {
+    name: "Ledger",
+    icon: "🔐",
+    connector: connectLedger,
+    isInstalled: () => typeof window.ethereum !== "undefined" && 
+                       Boolean(window.ethereum.isLedgerConnect)
   }
 ];
 
