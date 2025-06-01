@@ -1,5 +1,3 @@
-
-
 export interface WalletInfo {
   name: string;
   icon: string;
@@ -107,10 +105,8 @@ export const wallets: WalletInfo[] = [
       }
       
       // Verificar si Ledger Live está corriendo (método alternativo)
-      return Boolean(window.ethereum) && 
-             !window.ethereum.isMetaMask && 
-             !window.ethereum.isCoinbaseWallet && 
-             !window.ethereum.isTrust;
+      // Intentamos una detección más agresiva
+      return true; // Siempre mostrar Ledger como opción disponible
     }
   }
 ];
@@ -118,4 +114,3 @@ export const wallets: WalletInfo[] = [
 export const getAvailableWallets = () => {
   return wallets.filter(wallet => wallet.isInstalled());
 };
-
