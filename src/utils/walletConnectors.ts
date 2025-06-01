@@ -1,4 +1,5 @@
 
+
 export interface WalletInfo {
   name: string;
   icon: string;
@@ -34,13 +35,30 @@ export const connectTrustWallet = async () => {
 };
 
 export const connectLedger = async () => {
-  // Ledger Live se conecta a través de window.ethereum cuando está instalado
-  if (typeof window.ethereum === "undefined" || !window.ethereum.isLedgerConnect) {
-    throw new Error("Ledger Live is not installed or connected");
+  // Verificar si hay múltiples proveedores
+  if (typeof window.ethereum === "undefined") {
+    throw new Error("No Ethereum provider found");
+  }
+
+  // Si hay múltiples proveedores, buscar Ledger
+  if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
+    const ledgerProvider = window.ethereum.providers.find((provider: any) => 
+      provider.isLedgerConnect || provider._metamask?.isUnlocked === false
+    );
+    
+    if (ledgerProvider) {
+      const accounts = await ledgerProvider.request({ method: "eth_requestAccounts" });
+      return { address: accounts[0], provider: ledgerProvider };
+    }
   }
   
-  const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-  return { address: accounts[0], provider: window.ethereum };
+  // Intentar conectar directamente y verificar si es Ledger por el user agent
+  try {
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    return { address: accounts[0], provider: window.ethereum };
+  } catch (error) {
+    throw new Error("Ledger connection failed. Please make sure Ledger Live is running and connected.");
+  }
 };
 
 export const wallets: WalletInfo[] = [
@@ -48,10 +66,19 @@ export const wallets: WalletInfo[] = [
     name: "MetaMask",
     icon: "🦊",
     connector: connectMetaMask,
-    isInstalled: () => typeof window.ethereum !== "undefined" && 
-                       !window.ethereum.isCoinbaseWallet && 
-                       !window.ethereum.isTrust &&
-                       !window.ethereum.isLedgerConnect
+    isInstalled: () => {
+      if (typeof window.ethereum === "undefined") return false;
+      
+      // Si hay múltiples proveedores, verificar si MetaMask está entre ellos
+      if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
+        return window.ethereum.providers.some((provider: any) => provider.isMetaMask);
+      }
+      
+      // Verificar si es MetaMask y no otras wallets
+      return Boolean(window.ethereum.isMetaMask) && 
+             !window.ethereum.isCoinbaseWallet && 
+             !window.ethereum.isTrust;
+    }
   },
   {
     name: "Coinbase Wallet",
@@ -71,11 +98,24 @@ export const wallets: WalletInfo[] = [
     name: "Ledger",
     icon: "🔐",
     connector: connectLedger,
-    isInstalled: () => typeof window.ethereum !== "undefined" && 
-                       Boolean(window.ethereum.isLedgerConnect)
+    isInstalled: () => {
+      if (typeof window.ethereum === "undefined") return false;
+      
+      // Verificar si hay múltiples proveedores (indicativo de Ledger Live + MetaMask)
+      if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
+        return window.ethereum.providers.length > 1;
+      }
+      
+      // Verificar si Ledger Live está corriendo (método alternativo)
+      return Boolean(window.ethereum) && 
+             !window.ethereum.isMetaMask && 
+             !window.ethereum.isCoinbaseWallet && 
+             !window.ethereum.isTrust;
+    }
   }
 ];
 
 export const getAvailableWallets = () => {
   return wallets.filter(wallet => wallet.isInstalled());
 };
+

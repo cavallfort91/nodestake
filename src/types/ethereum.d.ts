@@ -1,4 +1,5 @@
 
+
 interface EthereumProvider {
   isMetaMask?: boolean;
   request: (args: { method: string; params?: any[] }) => Promise<any>;
@@ -6,8 +7,11 @@ interface EthereumProvider {
   removeListener: (event: string, callback: (...args: any[]) => void) => void;
   isCoinbaseWallet?: boolean;
   isTrust?: boolean;
-  isMetaMask?: boolean;
   isLedgerConnect?: boolean;
+  providers?: EthereumProvider[];
+  _metamask?: {
+    isUnlocked?: boolean;
+  };
 }
 
 declare global {
@@ -17,8 +21,10 @@ declare global {
       isTrust?: boolean;
       isMetaMask?: boolean;
       isLedgerConnect?: boolean;
+      providers?: EthereumProvider[];
     };
   }
 }
 
 export {};
+
