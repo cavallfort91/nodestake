@@ -5,9 +5,12 @@ import { StatCard } from '@/components/StatCard';
 import { StakingPool } from '@/components/StakingPool';
 import { RecentActivity } from '@/components/RecentActivity';
 import { EthPriceChart } from '@/components/EthPriceChart';
+import { useEthPrice } from '@/hooks/useEthPrice';
 import { Wallet, TrendingUp, DollarSign, Users, Zap } from 'lucide-react';
 
 const Index = () => {
+  const { price: ethPrice, isLoading } = useEthPrice();
+
   return (
     <div className="min-h-screen bg-everstake-bg-primary flex w-full">
       <Sidebar />
@@ -22,7 +25,6 @@ const Index = () => {
             <p className="text-everstake-gray-light">Here's your staking portfolio overview</p>
           </div>
 
-          {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatCard
               title="Total Staked"
@@ -92,7 +94,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Performance Chart with ETH Price */}
               <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-white font-semibold">Performance Overview - ETH Price</h3>
@@ -133,7 +134,9 @@ const Index = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-everstake-gray-light text-sm">ETH Price</span>
-                    <span className="text-white font-medium">$2,345.67</span>
+                    <span className="text-white font-medium">
+                      {isLoading ? 'Loading...' : ethPrice}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-everstake-gray-light text-sm">Network APY</span>

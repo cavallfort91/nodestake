@@ -1,8 +1,10 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Info, Clock, Shield, Coins } from 'lucide-react';
+import { useEthPrice } from '@/hooks/useEthPrice';
 
 export function StakingInfo() {
+  const { price: ethPrice, isLoading } = useEthPrice();
+
   return (
     <div className="space-y-6">
       {/* Network Stats */}
@@ -13,7 +15,9 @@ export function StakingInfo() {
         <CardContent className="space-y-4">
           <div className="flex justify-between">
             <span className="text-everstake-gray-light">ETH Price</span>
-            <span className="text-white font-medium">$2,345.67</span>
+            <span className="text-white font-medium">
+              {isLoading ? 'Loading...' : ethPrice}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-everstake-gray-light">Total Staked</span>
