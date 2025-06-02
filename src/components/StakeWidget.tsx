@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +13,7 @@ export function StakeWidget() {
   const [userAddress, setUserAddress] = useState<string>('');
 
   const STAKING_CONTRACT_ADDRESS = '0x3D640e9C3534518828535d1fc8DDa15c41979705';
+  const MIN_STAKE_AMOUNT = 0.1;
 
   // Función para obtener el balance de la wallet
   const fetchWalletBalance = async () => {
@@ -69,15 +69,25 @@ export function StakeWidget() {
       return;
     }
 
+    const amountFloat = parseFloat(amount);
+    const balanceFloat = parseFloat(walletBalance);
+
+    if (amountFloat < MIN_STAKE_AMOUNT) {
+      toast.error(`Minimum stake amount is ${MIN_STAKE_AMOUNT} ETH`);
+      return;
+    }
+
+    if (balanceFloat < MIN_STAKE_AMOUNT) {
+      toast.error(`Wallet balance must be at least ${MIN_STAKE_AMOUNT} ETH to stake`);
+      return;
+    }
+
     if (typeof window.ethereum === 'undefined') {
       toast.error('MetaMask is not installed');
       return;
     }
 
     // Verificar que hay suficiente balance
-    const amountFloat = parseFloat(amount);
-    const balanceFloat = parseFloat(walletBalance);
-    
     if (amountFloat > balanceFloat) {
       toast.error('Insufficient balance for this transaction');
       return;
@@ -140,6 +150,9 @@ export function StakeWidget() {
     }
   };
 
+  const balanceFloat = parseFloat(walletBalance);
+  const isBalanceSufficient = balanceFloat >= MIN_STAKE_AMOUNT;
+
   return (
     <Card className="bg-everstake-bg-card border-everstake-gray-dark/20">
       <CardHeader>
@@ -159,14 +172,19 @@ export function StakeWidget() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="bg-everstake-bg-primary border-everstake-gray-dark/30 text-white pr-12 text-lg"
-              disabled={isStaking}
+              disabled={isStaking || !isBalanceSufficient}
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-everstake-gray-light">ETH</span>
           </div>
           <div className="flex justify-between text-xs text-everstake-gray-light mt-2">
-            <span>Min: 0.01 ETH</span>
+            <span>Min: {MIN_STAKE_AMOUNT} ETH</span>
             <span>Balance: {walletBalance} ETH</span>
           </div>
+          {!isBalanceSufficient && (
+            <p className="text-red-400 text-xs mt-1">
+              Insufficient balance. Minimum {MIN_STAKE_AMOUNT} ETH required.
+            </p>
+          )}
         </div>
 
         {/* Quick Amount Buttons */}
@@ -177,7 +195,7 @@ export function StakeWidget() {
               variant="outline"
               size="sm"
               className="border-everstake-gray-dark/30 text-everstake-gray-light hover:bg-everstake-bg-primary"
-              disabled={isStaking}
+              disabled={isStaking || !isBalanceSufficient}
               onClick={() => {
                 const maxAmount = parseFloat(walletBalance);
                 if (percentage === 'MAX') {
@@ -218,11 +236,13 @@ export function StakeWidget() {
         {/* Stake Button */}
         <Button
           className="w-full bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center justify-center space-x-2"
-          disabled={!amount || parseFloat(amount) <= 0 || isStaking}
+          disabled={!amount || parseFloat(amount) <= 0 || isStaking || !isBalanceSufficient || parseFloat(amount) < MIN_STAKE_AMOUNT}
           onClick={handleStake}
         >
           {isStaking ? (
             <span>Processing...</span>
+          ) : !isBalanceSufficient ? (
+            <span>Insufficient Balance</span>
           ) : (
             <>
               <span>Stake ETH</span>
