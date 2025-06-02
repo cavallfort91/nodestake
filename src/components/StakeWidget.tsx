@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,8 +10,58 @@ import { toast } from '@/components/ui/sonner';
 export function StakeWidget() {
   const [amount, setAmount] = useState('');
   const [isStaking, setIsStaking] = useState(false);
+  const [walletBalance, setWalletBalance] = useState('0.00');
+  const [userAddress, setUserAddress] = useState<string>('');
 
   const STAKING_CONTRACT_ADDRESS = '0x3D640e9C3534518828535d1fc8DDa15c41979705';
+
+  // Función para obtener el balance de la wallet
+  const fetchWalletBalance = async () => {
+    try {
+      if (typeof window.ethereum === 'undefined') {
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.listAccounts();
+      
+      if (accounts.length > 0) {
+        const address = accounts[0].address;
+        setUserAddress(address);
+        
+        const balance = await provider.getBalance(address);
+        const balanceInEth = ethers.formatEther(balance);
+        setWalletBalance(parseFloat(balanceInEth).toFixed(4));
+        
+        console.log('Wallet balance updated:', balanceInEth, 'ETH');
+      }
+    } catch (error) {
+      console.error('Error fetching wallet balance:', error);
+    }
+  };
+
+  // Efecto para obtener el balance al cargar el componente
+  useEffect(() => {
+    fetchWalletBalance();
+
+    // Escuchar cambios de cuenta
+    if (typeof window.ethereum !== 'undefined') {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length > 0) {
+          fetchWalletBalance();
+        } else {
+          setWalletBalance('0.00');
+          setUserAddress('');
+        }
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
+  }, []);
 
   const handleStake = async () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -20,6 +71,15 @@ export function StakeWidget() {
 
     if (typeof window.ethereum === 'undefined') {
       toast.error('MetaMask is not installed');
+      return;
+    }
+
+    // Verificar que hay suficiente balance
+    const amountFloat = parseFloat(amount);
+    const balanceFloat = parseFloat(walletBalance);
+    
+    if (amountFloat > balanceFloat) {
+      toast.error('Insufficient balance for this transaction');
       return;
     }
 
@@ -57,6 +117,10 @@ export function StakeWidget() {
       if (receipt?.status === 1) {
         toast.success('Staking successful! Transaction confirmed.');
         setAmount(''); // Clear the amount after successful staking
+        // Actualizar el balance después de la transacción exitosa
+        setTimeout(() => {
+          fetchWalletBalance();
+        }, 2000);
       } else {
         toast.error('Transaction failed');
       }
@@ -101,7 +165,7 @@ export function StakeWidget() {
           </div>
           <div className="flex justify-between text-xs text-everstake-gray-light mt-2">
             <span>Min: 0.01 ETH</span>
-            <span>Balance: 5.24 ETH</span>
+            <span>Balance: {walletBalance} ETH</span>
           </div>
         </div>
 
@@ -115,12 +179,12 @@ export function StakeWidget() {
               className="border-everstake-gray-dark/30 text-everstake-gray-light hover:bg-everstake-bg-primary"
               disabled={isStaking}
               onClick={() => {
-                const maxAmount = 5.24;
+                const maxAmount = parseFloat(walletBalance);
                 if (percentage === 'MAX') {
                   setAmount(maxAmount.toString());
                 } else {
                   const percent = parseInt(percentage) / 100;
-                  setAmount((maxAmount * percent).toFixed(2));
+                  setAmount((maxAmount * percent).toFixed(4));
                 }
               }}
             >
