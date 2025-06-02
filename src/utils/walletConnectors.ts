@@ -1,3 +1,4 @@
+
 export interface WalletInfo {
   name: string;
   icon: string;
@@ -10,8 +11,25 @@ export const connectMetaMask = async () => {
     throw new Error("MetaMask is not installed");
   }
   
-  const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-  return { address: accounts[0], provider: window.ethereum };
+  // Si hay múltiples proveedores, buscar específicamente MetaMask
+  if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
+    const metamaskProvider = window.ethereum.providers.find((provider: any) => 
+      provider.isMetaMask && !provider.isLedgerConnect
+    );
+    
+    if (metamaskProvider) {
+      const accounts = await metamaskProvider.request({ method: "eth_requestAccounts" });
+      return { address: accounts[0], provider: metamaskProvider };
+    }
+  }
+  
+  // Verificar que sea MetaMask y no otra wallet
+  if (window.ethereum.isMetaMask && !window.ethereum.isLedgerConnect) {
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    return { address: accounts[0], provider: window.ethereum };
+  }
+  
+  throw new Error("MetaMask not found");
 };
 
 export const connectCoinbaseWallet = async () => {
@@ -33,30 +51,66 @@ export const connectTrustWallet = async () => {
 };
 
 export const connectLedger = async () => {
-  // Verificar si hay múltiples proveedores
   if (typeof window.ethereum === "undefined") {
-    throw new Error("No Ethereum provider found");
+    throw new Error("No Ethereum provider found. Please make sure Ledger Live is running.");
   }
 
-  // Si hay múltiples proveedores, buscar Ledger
+  // Si hay múltiples proveedores, buscar específicamente Ledger Live
   if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
-    const ledgerProvider = window.ethereum.providers.find((provider: any) => 
-      provider.isLedgerConnect || provider._metamask?.isUnlocked === false
-    );
+    console.log('Multiple providers found:', window.ethereum.providers.map((p: any) => ({
+      isMetaMask: p.isMetaMask,
+      isLedgerConnect: p.isLedgerConnect,
+      constructor: p.constructor.name
+    })));
+    
+    // Buscar el proveedor de Ledger Live
+    const ledgerProvider = window.ethereum.providers.find((provider: any) => {
+      // Ledger Live se identifica de diferentes maneras
+      return provider.isLedgerConnect || 
+             provider.constructor?.name?.includes('LedgerLive') ||
+             (provider.request && !provider.isMetaMask && !provider.isCoinbaseWallet && !provider.isTrust);
+    });
     
     if (ledgerProvider) {
-      const accounts = await ledgerProvider.request({ method: "eth_requestAccounts" });
-      return { address: accounts[0], provider: ledgerProvider };
+      console.log('Found Ledger provider:', ledgerProvider);
+      try {
+        const accounts = await ledgerProvider.request({ method: "eth_requestAccounts" });
+        return { address: accounts[0], provider: ledgerProvider };
+      } catch (error) {
+        console.error('Ledger connection error:', error);
+        throw new Error("Failed to connect to Ledger. Make sure your device is connected and Ethereum app is open.");
+      }
+    }
+    
+    // Si no se encuentra un proveedor específico de Ledger, usar el que no sea MetaMask
+    const nonMetaMaskProvider = window.ethereum.providers.find((provider: any) => 
+      !provider.isMetaMask && !provider.isCoinbaseWallet && !provider.isTrust
+    );
+    
+    if (nonMetaMaskProvider) {
+      console.log('Using non-MetaMask provider for Ledger:', nonMetaMaskProvider);
+      try {
+        const accounts = await nonMetaMaskProvider.request({ method: "eth_requestAccounts" });
+        return { address: accounts[0], provider: nonMetaMaskProvider };
+      } catch (error) {
+        console.error('Ledger connection error:', error);
+        throw new Error("Failed to connect to Ledger. Make sure your device is connected and Ethereum app is open.");
+      }
     }
   }
   
-  // Intentar conectar directamente y verificar si es Ledger por el user agent
-  try {
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    return { address: accounts[0], provider: window.ethereum };
-  } catch (error) {
-    throw new Error("Ledger connection failed. Please make sure Ledger Live is running and connected.");
+  // Si no hay múltiples proveedores pero ethereum existe, verificar si es Ledger
+  if (!window.ethereum.isMetaMask && !window.ethereum.isCoinbaseWallet && !window.ethereum.isTrust) {
+    try {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      return { address: accounts[0], provider: window.ethereum };
+    } catch (error) {
+      console.error('Ledger connection error:', error);
+      throw new Error("Failed to connect to Ledger. Make sure your device is connected and Ethereum app is open.");
+    }
   }
+  
+  throw new Error("Ledger Live not detected. Please make sure Ledger Live is running and connected.");
 };
 
 export const wallets: WalletInfo[] = [
@@ -99,14 +153,21 @@ export const wallets: WalletInfo[] = [
     isInstalled: () => {
       if (typeof window.ethereum === "undefined") return false;
       
-      // Verificar si hay múltiples proveedores (indicativo de Ledger Live + MetaMask)
+      // Verificar si hay múltiples proveedores (indicativo de Ledger Live + otras wallets)
       if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
-        return window.ethereum.providers.length > 1;
+        // Buscar evidencia de Ledger Live
+        const hasLedger = window.ethereum.providers.some((provider: any) => 
+          provider.isLedgerConnect || 
+          provider.constructor?.name?.includes('LedgerLive') ||
+          (!provider.isMetaMask && !provider.isCoinbaseWallet && !provider.isTrust)
+        );
+        return hasLedger;
       }
       
-      // Verificar si Ledger Live está corriendo (método alternativo)
-      // Intentamos una detección más agresiva
-      return true; // Siempre mostrar Ledger como opción disponible
+      // Si no hay múltiples proveedores, verificar si el único proveedor no es una wallet conocida
+      return !window.ethereum.isMetaMask && 
+             !window.ethereum.isCoinbaseWallet && 
+             !window.ethereum.isTrust;
     }
   }
 ];
