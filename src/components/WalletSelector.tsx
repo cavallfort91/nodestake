@@ -19,12 +19,30 @@ export function WalletSelector({ onConnect, onError }: WalletSelectorProps) {
   const handleWalletConnect = async (wallet: any) => {
     setIsConnecting(wallet.name);
     try {
+      console.log(`Attempting to connect to ${wallet.name}...`);
       const { address } = await wallet.connector();
+      console.log(`Successfully connected to ${wallet.name}:`, address);
       onConnect(address, wallet.name);
       setIsOpen(false);
     } catch (error: any) {
-      onError(error.message || `Failed to connect to ${wallet.name}`);
+      console.log(`Connection to ${wallet.name} failed:`, error);
+      
+      // Manejar diferentes tipos de errores de cancelación
+      const errorMessage = error.message || `Failed to connect to ${wallet.name}`;
+      
+      if (error.code === 4001 || 
+          error.code === 'ACTION_REJECTED' || 
+          errorMessage.includes('User rejected') ||
+          errorMessage.includes('rejected') ||
+          errorMessage.includes('cancelled') ||
+          errorMessage.includes('canceled')) {
+        console.log('User cancelled the connection');
+        // No mostrar error para cancelaciones del usuario, solo resetear estado
+      } else {
+        onError(errorMessage);
+      }
     } finally {
+      // Siempre resetear el estado de connecting
       setIsConnecting(null);
     }
   };
