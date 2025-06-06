@@ -50,57 +50,71 @@ export const connectTrustWallet = async () => {
 };
 
 export const connectLedger = async () => {
-  console.log('Attempting to connect to Ledger...');
+  console.log('Attempting to connect to Ledger via MetaMask...');
   
   if (typeof window.ethereum === "undefined") {
-    throw new Error("No Ethereum provider found. Please make sure your Ledger is connected and the Ethereum app is open.");
+    throw new Error("No Ethereum provider found. Please make sure MetaMask is installed and your Ledger is connected.");
   }
 
   let provider = null;
 
-  // Si hay múltiples proveedores
+  // Buscar MetaMask como proveedor para acceder al Ledger
   if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
     console.log('Multiple providers detected:', window.ethereum.providers.length);
-    
-    // Buscar cualquier proveedor disponible (incluido MetaMask que puede estar conectado al Ledger)
-    provider = window.ethereum.providers[0] || window.ethereum;
-  } else {
-    // Un solo proveedor - usar el disponible
-    console.log('Single provider detected, using available provider');
+    provider = window.ethereum.providers.find((p: any) => p.isMetaMask) || window.ethereum;
+  } else if (window.ethereum.isMetaMask) {
     provider = window.ethereum;
+  } else {
+    throw new Error("MetaMask not found. Please install MetaMask to connect your Ledger.");
   }
   
   if (!provider) {
-    throw new Error("No Ethereum provider available");
+    throw new Error("MetaMask provider not available");
   }
   
-  console.log('Using provider for Ledger connection');
+  console.log('Using MetaMask provider for Ledger connection');
   
   try {
-    // Intentar conectar con el proveedor
+    // Primero solicitar acceso a las cuentas
     const accounts = await provider.request({ 
       method: "eth_requestAccounts"
     });
     
     if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts returned. Please make sure your Ledger is unlocked and the Ethereum app is open.");
+      throw new Error("No accounts found. Please unlock your Ledger device and open the Ethereum app.");
     }
+
+    // Intentar obtener más direcciones del Ledger usando eth_accounts
+    console.log('Available accounts:', accounts);
     
-    console.log('Successfully connected, account:', accounts[0]);
-    return { address: accounts[0], provider: provider };
+    // Para Ledger, intentamos solicitar más direcciones
+    try {
+      const allAccounts = await provider.request({
+        method: "wallet_getAccounts"
+      });
+      console.log('All available accounts:', allAccounts);
+    } catch (e) {
+      console.log('wallet_getAccounts not supported, using eth_requestAccounts result');
+    }
+
+    // Por ahora, usar la primera cuenta disponible
+    // En una implementación más avanzada, aquí podrías mostrar un selector de direcciones
+    const selectedAccount = accounts[0];
+    
+    console.log('Successfully connected to Ledger account:', selectedAccount);
+    return { address: selectedAccount, provider: provider };
     
   } catch (error: any) {
     console.error('Ledger connection error:', error);
     
-    // Mensajes de error más específicos
     if (error.code === 4001) {
-      throw new Error("Connection rejected. Please approve the connection on your device.");
+      throw new Error("Connection rejected. Please approve the connection and make sure your Ledger is unlocked with the Ethereum app open.");
     } else if (error.code === -32603) {
-      throw new Error("Internal error. Please make sure the Ethereum app is open on your Ledger device.");
+      throw new Error("Internal error. Please make sure your Ledger is connected and the Ethereum app is open.");
     } else if (error.message?.includes('User rejected')) {
-      throw new Error("Connection was rejected. Please try again and approve on your device.");
+      throw new Error("Connection was rejected. Please try again and make sure to approve the connection on your Ledger device.");
     } else {
-      throw new Error(`Failed to connect: ${error.message}. Please ensure your Ledger is connected and the Ethereum app is open.`);
+      throw new Error(`Failed to connect to Ledger: ${error.message}. Please ensure your Ledger is connected, unlocked, and the Ethereum app is open.`);
     }
   }
 };
@@ -145,9 +159,12 @@ export const wallets: WalletInfo[] = [
     isInstalled: () => {
       if (typeof window.ethereum === "undefined") return false;
       
-      // Siempre mostrar Ledger como disponible si hay algún proveedor Ethereum
-      // La detección real se hará en el momento de la conexión
-      return true;
+      // Mostrar Ledger como disponible si MetaMask está instalado
+      if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
+        return window.ethereum.providers.some((provider: any) => provider.isMetaMask);
+      }
+      
+      return Boolean(window.ethereum.isMetaMask);
     }
   }
 ];
