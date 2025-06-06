@@ -1,4 +1,3 @@
-
 export interface WalletInfo {
   name: string;
   icon: string;
@@ -54,88 +53,54 @@ export const connectLedger = async () => {
   console.log('Attempting to connect to Ledger...');
   
   if (typeof window.ethereum === "undefined") {
-    throw new Error("No Ethereum provider found. Please make sure Ledger Live is running and the Ethereum app is open on your device.");
+    throw new Error("No Ethereum provider found. Please make sure your Ledger is connected and the Ethereum app is open.");
   }
 
-  // Intentar detectar Ledger Live específicamente
-  let ledgerProvider = null;
+  let provider = null;
 
   // Si hay múltiples proveedores
   if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
     console.log('Multiple providers detected:', window.ethereum.providers.length);
     
-    // Log de todos los proveedores para debugging
-    window.ethereum.providers.forEach((provider: any, index: number) => {
-      console.log(`Provider ${index}:`, {
-        isMetaMask: provider.isMetaMask,
-        isCoinbaseWallet: provider.isCoinbaseWallet,
-        isTrust: provider.isTrust,
-        isLedgerConnect: provider.isLedgerConnect,
-        constructor: provider.constructor?.name,
-        _metamask: provider._metamask,
-        selectedAddress: provider.selectedAddress
-      });
-    });
-    
-    // Buscar proveedor de Ledger - múltiples estrategias
-    ledgerProvider = window.ethereum.providers.find((provider: any) => {
-      return provider.isLedgerConnect || 
-             provider.constructor?.name?.toLowerCase().includes('ledger') ||
-             (!provider.isMetaMask && !provider.isCoinbaseWallet && !provider.isTrust && !provider._metamask);
-    });
-    
-    // Si no encontramos uno específico, usar el que no sea de las wallets conocidas
-    if (!ledgerProvider) {
-      ledgerProvider = window.ethereum.providers.find((provider: any) => 
-        !provider.isMetaMask && !provider.isCoinbaseWallet && !provider.isTrust
-      );
-    }
+    // Buscar cualquier proveedor disponible (incluido MetaMask que puede estar conectado al Ledger)
+    provider = window.ethereum.providers[0] || window.ethereum;
   } else {
-    // Un solo proveedor - verificar si podría ser Ledger
-    console.log('Single provider detected:', {
-      isMetaMask: window.ethereum.isMetaMask,
-      isCoinbaseWallet: window.ethereum.isCoinbaseWallet,
-      isTrust: window.ethereum.isTrust,
-      isLedgerConnect: window.ethereum.isLedgerConnect,
-      constructor: window.ethereum.constructor?.name
-    });
-    
-    if (!window.ethereum.isMetaMask && !window.ethereum.isCoinbaseWallet && !window.ethereum.isTrust) {
-      ledgerProvider = window.ethereum;
-    }
+    // Un solo proveedor - usar el disponible
+    console.log('Single provider detected, using available provider');
+    provider = window.ethereum;
   }
   
-  if (!ledgerProvider) {
-    throw new Error("Ledger not detected. Please ensure:\n1. Ledger Live is running\n2. Your Ledger device is connected\n3. The Ethereum app is open on your device\n4. Browser support is enabled in Ledger Live settings");
+  if (!provider) {
+    throw new Error("No Ethereum provider available");
   }
   
-  console.log('Found potential Ledger provider:', ledgerProvider);
+  console.log('Using provider for Ledger connection');
   
   try {
-    // Intentar conectar con el proveedor encontrado
-    const accounts = await ledgerProvider.request({ 
+    // Intentar conectar con el proveedor
+    const accounts = await provider.request({ 
       method: "eth_requestAccounts"
     });
     
     if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts returned from Ledger");
+      throw new Error("No accounts returned. Please make sure your Ledger is unlocked and the Ethereum app is open.");
     }
     
-    console.log('Successfully connected to Ledger, account:', accounts[0]);
-    return { address: accounts[0], provider: ledgerProvider };
+    console.log('Successfully connected, account:', accounts[0]);
+    return { address: accounts[0], provider: provider };
     
   } catch (error: any) {
     console.error('Ledger connection error:', error);
     
     // Mensajes de error más específicos
     if (error.code === 4001) {
-      throw new Error("Connection rejected. Please approve the connection on your Ledger device.");
+      throw new Error("Connection rejected. Please approve the connection on your device.");
     } else if (error.code === -32603) {
       throw new Error("Internal error. Please make sure the Ethereum app is open on your Ledger device.");
     } else if (error.message?.includes('User rejected')) {
-      throw new Error("Connection was rejected. Please try again and approve on your Ledger device.");
+      throw new Error("Connection was rejected. Please try again and approve on your device.");
     } else {
-      throw new Error(`Failed to connect to Ledger: ${error.message}. Please ensure your device is connected and the Ethereum app is open.`);
+      throw new Error(`Failed to connect: ${error.message}. Please ensure your Ledger is connected and the Ethereum app is open.`);
     }
   }
 };
