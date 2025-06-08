@@ -31,66 +31,23 @@ export const connectMetaMask = async () => {
   }
 
   try {
-    console.log('Requesting MetaMask accounts...');
+    console.log('Requesting MetaMask connection...');
     
-    // Primero solicitar permisos para conectar
-    const requestedAccounts = await provider.request({ 
+    // Solicitar conexión y obtener la cuenta activa
+    const accounts = await provider.request({ 
       method: "eth_requestAccounts" 
     });
-    console.log('Requested accounts:', requestedAccounts);
+    console.log('Connected accounts:', accounts);
     
-    // Intentar obtener todas las cuentas disponibles
-    const allAccounts = await provider.request({ 
-      method: "eth_accounts" 
-    });
-    console.log('All available accounts:', allAccounts);
-    
-    // Intentar solicitar acceso a todas las cuentas (incluyendo hardware wallets)
-    try {
-      const walletState = await provider.request({
-        method: "wallet_getPermissions"
-      });
-      console.log('Wallet permissions:', walletState);
-    } catch (permError) {
-      console.log('Could not get wallet permissions:', permError);
-    }
-
-    // Intentar el método experimental para obtener todas las cuentas
-    let extraAccounts = [];
-    try {
-      extraAccounts = await provider.request({
-        method: "wallet_requestPermissions",
-        params: [{ eth_accounts: {} }]
-      }).then(() => provider.request({ method: "eth_accounts" }));
-      console.log('Extra accounts from permissions:', extraAccounts);
-    } catch (extraError) {
-      console.log('Could not get extra accounts:', extraError);
+    if (!accounts || accounts.length === 0) {
+      throw new Error("No accounts found");
     }
     
-    // Combinar todas las cuentas únicas
-    let combinedAccounts = [...new Set([...requestedAccounts, ...allAccounts, ...extraAccounts])];
-    
-    // Si seguimos teniendo solo una cuenta, intentar acceder directamente a las cuentas internas de MetaMask
-    if (combinedAccounts.length <= 1) {
-      try {
-        // Este es un método no estándar que algunos usuarios reportan que funciona
-        const internalAccounts = await provider.request({
-          method: "eth_accounts",
-          params: []
-        });
-        console.log('Internal accounts:', internalAccounts);
-        combinedAccounts = [...new Set([...combinedAccounts, ...internalAccounts])];
-      } catch (internalError) {
-        console.log('Could not access internal accounts:', internalError);
-      }
-    }
-    
-    console.log('Final combined accounts for MetaMask:', combinedAccounts);
-    
+    // Retornar la primera cuenta (la actualmente conectada)
     return { 
-      address: combinedAccounts[0], 
+      address: accounts[0], 
       provider: provider, 
-      accounts: combinedAccounts 
+      accounts: accounts 
     };
   } catch (error: any) {
     console.error('MetaMask connection error:', error);
@@ -142,28 +99,18 @@ export const connectLedger = async () => {
   console.log('Using MetaMask provider for Ledger connection');
   
   try {
-    // Primero solicitar permisos
-    const requestedAccounts = await provider.request({ 
+    // Solicitar conexión y obtener cuentas disponibles
+    const accounts = await provider.request({ 
       method: "eth_requestAccounts"
     });
-    console.log('Ledger requested accounts:', requestedAccounts);
+    console.log('Ledger accounts via MetaMask:', accounts);
     
-    // Luego intentar obtener todas las cuentas (incluyendo Ledger)
-    const allAccounts = await provider.request({ 
-      method: "eth_accounts" 
-    });
-    console.log('All available accounts for Ledger:', allAccounts);
-    
-    let combinedAccounts = [...new Set([...requestedAccounts, ...allAccounts])];
-    
-    if (!combinedAccounts || combinedAccounts.length === 0) {
+    if (!accounts || accounts.length === 0) {
       throw new Error("No accounts found. Please unlock your Ledger device and open the Ethereum app, then try connecting through MetaMask settings > Connect Hardware Wallet.");
     }
 
-    console.log('Final combined accounts for Ledger:', combinedAccounts);
-    
-    // Retornar todas las cuentas para que el usuario pueda seleccionar
-    return { address: combinedAccounts[0], provider: provider, accounts: combinedAccounts };
+    // Para Ledger, mostrar selector si hay múltiples cuentas
+    return { address: accounts[0], provider: provider, accounts: accounts };
     
   } catch (error: any) {
     console.error('Ledger connection error:', error);
