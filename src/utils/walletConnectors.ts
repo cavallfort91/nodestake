@@ -1,7 +1,7 @@
 export interface WalletInfo {
   name: string;
   icon: string;
-  connector: () => Promise<{ address: string; provider: any }>;
+  connector: () => Promise<{ address: string; provider: any; accounts?: string[] }>;
   isInstalled: () => boolean;
 }
 
@@ -18,14 +18,14 @@ export const connectMetaMask = async () => {
     
     if (metamaskProvider) {
       const accounts = await metamaskProvider.request({ method: "eth_requestAccounts" });
-      return { address: accounts[0], provider: metamaskProvider };
+      return { address: accounts[0], provider: metamaskProvider, accounts };
     }
   }
   
   // Verificar que sea MetaMask y no otra wallet
   if (window.ethereum.isMetaMask && !window.ethereum.isLedgerConnect) {
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    return { address: accounts[0], provider: window.ethereum };
+    return { address: accounts[0], provider: window.ethereum, accounts };
   }
   
   throw new Error("MetaMask not found");
@@ -37,7 +37,7 @@ export const connectCoinbaseWallet = async () => {
   }
   
   const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-  return { address: accounts[0], provider: window.ethereum };
+  return { address: accounts[0], provider: window.ethereum, accounts };
 };
 
 export const connectTrustWallet = async () => {
@@ -46,7 +46,7 @@ export const connectTrustWallet = async () => {
   }
   
   const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-  return { address: accounts[0], provider: window.ethereum };
+  return { address: accounts[0], provider: window.ethereum, accounts };
 };
 
 export const connectLedger = async () => {
@@ -75,7 +75,7 @@ export const connectLedger = async () => {
   console.log('Using MetaMask provider for Ledger connection');
   
   try {
-    // Primero solicitar acceso a las cuentas
+    // Solicitar acceso a todas las cuentas disponibles
     const accounts = await provider.request({ 
       method: "eth_requestAccounts"
     });
@@ -84,25 +84,10 @@ export const connectLedger = async () => {
       throw new Error("No accounts found. Please unlock your Ledger device and open the Ethereum app.");
     }
 
-    // Intentar obtener más direcciones del Ledger usando eth_accounts
     console.log('Available accounts:', accounts);
     
-    // Para Ledger, intentamos solicitar más direcciones
-    try {
-      const allAccounts = await provider.request({
-        method: "wallet_getAccounts"
-      });
-      console.log('All available accounts:', allAccounts);
-    } catch (e) {
-      console.log('wallet_getAccounts not supported, using eth_requestAccounts result');
-    }
-
-    // Por ahora, usar la primera cuenta disponible
-    // En una implementación más avanzada, aquí podrías mostrar un selector de direcciones
-    const selectedAccount = accounts[0];
-    
-    console.log('Successfully connected to Ledger account:', selectedAccount);
-    return { address: selectedAccount, provider: provider };
+    // Retornar todas las cuentas para que el usuario pueda seleccionar
+    return { address: accounts[0], provider: provider, accounts };
     
   } catch (error: any) {
     console.error('Ledger connection error:', error);
