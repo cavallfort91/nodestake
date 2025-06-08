@@ -1,4 +1,5 @@
 
+
 export interface WalletInfo {
   name: string;
   icon: string;
@@ -44,8 +45,45 @@ export const connectMetaMask = async () => {
     });
     console.log('All available accounts:', allAccounts);
     
-    // Intentar obtener cuentas específicamente incluyendo hardware wallets
-    let combinedAccounts = [...new Set([...requestedAccounts, ...allAccounts])];
+    // Intentar solicitar acceso a todas las cuentas (incluyendo hardware wallets)
+    try {
+      const walletState = await provider.request({
+        method: "wallet_getPermissions"
+      });
+      console.log('Wallet permissions:', walletState);
+    } catch (permError) {
+      console.log('Could not get wallet permissions:', permError);
+    }
+
+    // Intentar el método experimental para obtener todas las cuentas
+    let extraAccounts = [];
+    try {
+      extraAccounts = await provider.request({
+        method: "wallet_requestPermissions",
+        params: [{ eth_accounts: {} }]
+      }).then(() => provider.request({ method: "eth_accounts" }));
+      console.log('Extra accounts from permissions:', extraAccounts);
+    } catch (extraError) {
+      console.log('Could not get extra accounts:', extraError);
+    }
+    
+    // Combinar todas las cuentas únicas
+    let combinedAccounts = [...new Set([...requestedAccounts, ...allAccounts, ...extraAccounts])];
+    
+    // Si seguimos teniendo solo una cuenta, intentar acceder directamente a las cuentas internas de MetaMask
+    if (combinedAccounts.length <= 1) {
+      try {
+        // Este es un método no estándar que algunos usuarios reportan que funciona
+        const internalAccounts = await provider.request({
+          method: "eth_accounts",
+          params: []
+        });
+        console.log('Internal accounts:', internalAccounts);
+        combinedAccounts = [...new Set([...combinedAccounts, ...internalAccounts])];
+      } catch (internalError) {
+        console.log('Could not access internal accounts:', internalError);
+      }
+    }
     
     console.log('Final combined accounts for MetaMask:', combinedAccounts);
     

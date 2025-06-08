@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Wallet } from 'lucide-react';
+import { Wallet, Info } from 'lucide-react';
 
 interface AddressSelectorProps {
   isOpen: boolean;
@@ -55,7 +55,7 @@ export function AddressSelector({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-everstake-bg-card border-everstake-gray-dark/30 text-white">
+      <DialogContent className="bg-everstake-bg-card border-everstake-gray-dark/30 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white flex items-center space-x-2">
             <Wallet size={20} />
@@ -64,10 +64,24 @@ export function AddressSelector({
         </DialogHeader>
         
         <div className="space-y-4 mt-4">
-          <p className="text-everstake-gray-light text-sm">
-            Choose which address you want to connect. If you have a Ledger connected to MetaMask, 
-            those addresses should appear in this list:
-          </p>
+          {accounts.length === 1 ? (
+            <div className="bg-blue-500/10 border border-blue-500/30 p-3 rounded-lg">
+              <div className="flex items-start space-x-2">
+                <Info size={16} className="text-blue-400 mt-0.5" />
+                <div className="text-sm">
+                  <p className="text-blue-200 font-medium mb-1">Only one account detected</p>
+                  <p className="text-blue-300/80">
+                    If you have multiple accounts (including Ledger), make sure they're all connected in MetaMask. 
+                    Go to MetaMask → Settings → Connected Sites → Connect more accounts.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-everstake-gray-light text-sm">
+              Choose which address you want to connect:
+            </p>
+          )}
           
           <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
             {accounts.map((address, index) => (
@@ -89,7 +103,7 @@ export function AddressSelector({
           
           <div className="bg-everstake-bg-secondary/50 p-3 rounded-lg">
             <p className="text-everstake-gray-light text-xs">
-              💡 <strong>Tip:</strong> If you don't see your Ledger addresses, make sure you've connected your Ledger through MetaMask Settings → Connect Hardware Wallet first.
+              💡 <strong>Tip:</strong> To see all your accounts including Ledger addresses, make sure you've connected them in MetaMask first (Settings → Connect Hardware Wallet → Ledger).
             </p>
           </div>
           
