@@ -28,11 +28,21 @@ export function AddressSelector({
   };
 
   const getAccountLabel = (address: string, index: number) => {
-    // Intentar identificar si es una dirección de Ledger
-    // En MetaMask, las direcciones de Ledger suelen estar al final de la lista
-    if (walletName === 'Ledger' || (index >= 2 && accounts.length > 2)) {
-      return `Ledger ${index - 1}`;
+    // Para MetaMask, mostrar todas las cuentas disponibles
+    if (walletName === 'MetaMask') {
+      // Intentar detectar patrones comunes de direcciones de Ledger
+      // (esto es una aproximación, ya que no hay una forma definitiva de detectarlo)
+      if (index >= 2) {
+        return `Account ${index + 1} (possibly Ledger)`;
+      }
+      return `Account ${index + 1}`;
     }
+    
+    // Para conexión directa de Ledger
+    if (walletName === 'Ledger') {
+      return `Ledger Account ${index + 1}`;
+    }
+    
     return `Account ${index + 1}`;
   };
 
@@ -55,7 +65,8 @@ export function AddressSelector({
         
         <div className="space-y-4 mt-4">
           <p className="text-everstake-gray-light text-sm">
-            Choose which address you want to connect:
+            Choose which address you want to connect. If you have a Ledger connected to MetaMask, 
+            those addresses should appear in this list:
           </p>
           
           <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
@@ -75,6 +86,12 @@ export function AddressSelector({
               </div>
             ))}
           </RadioGroup>
+          
+          <div className="bg-everstake-bg-secondary/50 p-3 rounded-lg">
+            <p className="text-everstake-gray-light text-xs">
+              💡 <strong>Tip:</strong> If you don't see your Ledger addresses, make sure you've connected your Ledger through MetaMask Settings → Connect Hardware Wallet first.
+            </p>
+          </div>
           
           <div className="flex space-x-3 mt-6">
             <Button

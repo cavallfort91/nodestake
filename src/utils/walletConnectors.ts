@@ -10,25 +10,49 @@ export const connectMetaMask = async () => {
     throw new Error("MetaMask is not installed");
   }
   
+  let provider = null;
+  
   // Si hay múltiples proveedores, buscar específicamente MetaMask
   if (window.ethereum.providers && Array.isArray(window.ethereum.providers)) {
-    const metamaskProvider = window.ethereum.providers.find((provider: any) => 
-      provider.isMetaMask && !provider.isLedgerConnect
+    provider = window.ethereum.providers.find((p: any) => 
+      p.isMetaMask && !p.isLedgerConnect
     );
+  }
+  
+  // Si no se encontró en providers, usar el ethereum principal si es MetaMask
+  if (!provider && window.ethereum.isMetaMask && !window.ethereum.isLedgerConnect) {
+    provider = window.ethereum;
+  }
+  
+  if (!provider) {
+    throw new Error("MetaMask not found");
+  }
+
+  try {
+    // Primero solicitar permisos para todas las cuentas
+    const accounts = await provider.request({ 
+      method: "eth_requestAccounts" 
+    });
     
-    if (metamaskProvider) {
-      const accounts = await metamaskProvider.request({ method: "eth_requestAccounts" });
-      return { address: accounts[0], provider: metamaskProvider, accounts };
-    }
+    // Intentar obtener todas las cuentas disponibles (incluyendo hardware wallets)
+    const allAccounts = await provider.request({ 
+      method: "eth_accounts" 
+    });
+    
+    console.log('MetaMask accounts found:', allAccounts);
+    
+    // Usar todas las cuentas disponibles para que el usuario pueda elegir
+    const accountsToUse = allAccounts.length > 0 ? allAccounts : accounts;
+    
+    return { 
+      address: accountsToUse[0], 
+      provider: provider, 
+      accounts: accountsToUse 
+    };
+  } catch (error: any) {
+    console.error('MetaMask connection error:', error);
+    throw error;
   }
-  
-  // Verificar que sea MetaMask y no otra wallet
-  if (window.ethereum.isMetaMask && !window.ethereum.isLedgerConnect) {
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    return { address: accounts[0], provider: window.ethereum, accounts };
-  }
-  
-  throw new Error("MetaMask not found");
 };
 
 export const connectCoinbaseWallet = async () => {
@@ -75,31 +99,36 @@ export const connectLedger = async () => {
   console.log('Using MetaMask provider for Ledger connection');
   
   try {
-    // Solicitar acceso a todas las cuentas disponibles
-    const accounts = await provider.request({ 
+    // Primero solicitar permisos
+    await provider.request({ 
       method: "eth_requestAccounts"
     });
     
-    if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts found. Please unlock your Ledger device and open the Ethereum app.");
+    // Luego intentar obtener todas las cuentas (incluyendo Ledger)
+    const allAccounts = await provider.request({ 
+      method: "eth_accounts" 
+    });
+    
+    console.log('All available accounts:', allAccounts);
+    
+    if (!allAccounts || allAccounts.length === 0) {
+      throw new Error("No accounts found. Please unlock your Ledger device and open the Ethereum app, then try connecting through MetaMask settings > Connect Hardware Wallet.");
     }
 
-    console.log('Available accounts:', accounts);
-    
     // Retornar todas las cuentas para que el usuario pueda seleccionar
-    return { address: accounts[0], provider: provider, accounts };
+    return { address: allAccounts[0], provider: provider, accounts: allAccounts };
     
   } catch (error: any) {
     console.error('Ledger connection error:', error);
     
     if (error.code === 4001) {
-      throw new Error("Connection rejected. Please approve the connection and make sure your Ledger is unlocked with the Ethereum app open.");
+      throw new Error("Connection rejected. Please approve the connection and make sure your Ledger is connected to MetaMask via Settings > Connect Hardware Wallet.");
     } else if (error.code === -32603) {
-      throw new Error("Internal error. Please make sure your Ledger is connected and the Ethereum app is open.");
+      throw new Error("Internal error. Please make sure your Ledger is connected through MetaMask (Settings > Connect Hardware Wallet).");
     } else if (error.message?.includes('User rejected')) {
-      throw new Error("Connection was rejected. Please try again and make sure to approve the connection on your Ledger device.");
+      throw new Error("Connection was rejected. Please connect your Ledger through MetaMask Settings > Connect Hardware Wallet first.");
     } else {
-      throw new Error(`Failed to connect to Ledger: ${error.message}. Please ensure your Ledger is connected, unlocked, and the Ethereum app is open.`);
+      throw new Error(`Failed to connect to Ledger: ${error.message}. Please ensure your Ledger is connected through MetaMask (Settings > Connect Hardware Wallet).`);
     }
   }
 };
