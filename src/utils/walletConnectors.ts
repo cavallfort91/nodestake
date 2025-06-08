@@ -1,3 +1,4 @@
+
 export interface WalletInfo {
   name: string;
   icon: string;
@@ -29,25 +30,29 @@ export const connectMetaMask = async () => {
   }
 
   try {
-    // Primero solicitar permisos para todas las cuentas
-    const accounts = await provider.request({ 
+    console.log('Requesting MetaMask accounts...');
+    
+    // Primero solicitar permisos para conectar
+    const requestedAccounts = await provider.request({ 
       method: "eth_requestAccounts" 
     });
+    console.log('Requested accounts:', requestedAccounts);
     
-    // Intentar obtener todas las cuentas disponibles (incluyendo hardware wallets)
+    // Intentar obtener todas las cuentas disponibles
     const allAccounts = await provider.request({ 
       method: "eth_accounts" 
     });
+    console.log('All available accounts:', allAccounts);
     
-    console.log('MetaMask accounts found:', allAccounts);
+    // Intentar obtener cuentas específicamente incluyendo hardware wallets
+    let combinedAccounts = [...new Set([...requestedAccounts, ...allAccounts])];
     
-    // Usar todas las cuentas disponibles para que el usuario pueda elegir
-    const accountsToUse = allAccounts.length > 0 ? allAccounts : accounts;
+    console.log('Final combined accounts for MetaMask:', combinedAccounts);
     
     return { 
-      address: accountsToUse[0], 
+      address: combinedAccounts[0], 
       provider: provider, 
-      accounts: accountsToUse 
+      accounts: combinedAccounts 
     };
   } catch (error: any) {
     console.error('MetaMask connection error:', error);
@@ -100,23 +105,27 @@ export const connectLedger = async () => {
   
   try {
     // Primero solicitar permisos
-    await provider.request({ 
+    const requestedAccounts = await provider.request({ 
       method: "eth_requestAccounts"
     });
+    console.log('Ledger requested accounts:', requestedAccounts);
     
     // Luego intentar obtener todas las cuentas (incluyendo Ledger)
     const allAccounts = await provider.request({ 
       method: "eth_accounts" 
     });
+    console.log('All available accounts for Ledger:', allAccounts);
     
-    console.log('All available accounts:', allAccounts);
+    let combinedAccounts = [...new Set([...requestedAccounts, ...allAccounts])];
     
-    if (!allAccounts || allAccounts.length === 0) {
+    if (!combinedAccounts || combinedAccounts.length === 0) {
       throw new Error("No accounts found. Please unlock your Ledger device and open the Ethereum app, then try connecting through MetaMask settings > Connect Hardware Wallet.");
     }
 
+    console.log('Final combined accounts for Ledger:', combinedAccounts);
+    
     // Retornar todas las cuentas para que el usuario pueda seleccionar
-    return { address: allAccounts[0], provider: provider, accounts: allAccounts };
+    return { address: combinedAccounts[0], provider: provider, accounts: combinedAccounts };
     
   } catch (error: any) {
     console.error('Ledger connection error:', error);
