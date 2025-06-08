@@ -28,14 +28,14 @@ export function WalletSelector({ onConnect, onError }: WalletSelectorProps) {
       console.log(`Successfully connected to ${wallet.name}:`, address);
       console.log('Available accounts:', accounts);
       
-      // Solo para Ledger mostrar el selector si hay múltiples cuentas
-      if (wallet.name === 'Ledger' && accounts && accounts.length > 1) {
-        setAvailableAccounts(accounts);
+      // Para MetaMask y Ledger, siempre mostrar el selector para que el usuario pueda elegir
+      if (wallet.name === 'MetaMask' || wallet.name === 'Ledger') {
+        setAvailableAccounts(accounts || [address]);
         setCurrentWalletName(wallet.name);
         setShowAddressSelector(true);
         setIsOpen(false);
       } else {
-        // Para MetaMask y otras wallets, conectar directamente con la cuenta activa
+        // Para otras wallets, conectar directamente
         onConnect(address, wallet.name);
         setIsOpen(false);
       }
@@ -76,8 +76,8 @@ export function WalletSelector({ onConnect, onError }: WalletSelectorProps) {
     setIsOpen(true); // Volver a mostrar el selector de wallets
   };
 
-  if (availableWallets.length === 1) {
-    // Si solo hay una cartera disponible, conectar directamente
+  if (availableWallets.length === 1 && availableWallets[0].name !== 'MetaMask' && availableWallets[0].name !== 'Ledger') {
+    // Si solo hay una cartera disponible y no es MetaMask/Ledger, conectar directamente
     return (
       <>
         <Button 
