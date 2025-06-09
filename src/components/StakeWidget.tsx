@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -161,84 +160,93 @@ export function StakeWidget() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Amount Input - Always visible */}
+        <div>
+          <label className="text-everstake-gray-light text-sm mb-2 block">Amount to Stake</label>
+          <div className="relative">
+            <Input
+              type="number"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="bg-everstake-bg-primary border-everstake-gray-dark/30 text-white pr-12 text-lg"
+              disabled={!isConnected || isStaking || (isConnected && !isBalanceSufficient)}
+            />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-everstake-gray-light">ETH</span>
+          </div>
+          <div className="flex justify-between text-xs text-everstake-gray-light mt-2">
+            <span>Min: {MIN_STAKE_AMOUNT} ETH</span>
+            <span>Balance: {isConnected ? `${walletBalance} ETH` : 'Connect wallet'}</span>
+          </div>
+          {isConnected && !isBalanceSufficient && (
+            <p className="text-red-400 text-xs mt-1">
+              Insufficient balance. Minimum {MIN_STAKE_AMOUNT} ETH required.
+            </p>
+          )}
+          {!isConnected && (
+            <p className="text-everstake-gray-light text-xs mt-1">
+              Connect your wallet to see your balance and start staking.
+            </p>
+          )}
+        </div>
+
+        {/* Quick Amount Buttons - Always visible */}
+        <div className="grid grid-cols-4 gap-2">
+          {['25%', '50%', '75%', 'MAX'].map((percentage) => (
+            <Button
+              key={percentage}
+              variant="outline"
+              size="sm"
+              className="border-everstake-gray-dark/30 text-everstake-gray-light hover:bg-everstake-bg-primary"
+              disabled={!isConnected || isStaking || (isConnected && !isBalanceSufficient)}
+              onClick={() => {
+                if (!isConnected) return;
+                const maxAmount = parseFloat(walletBalance);
+                if (percentage === 'MAX') {
+                  setAmount(maxAmount.toString());
+                } else {
+                  const percent = parseInt(percentage) / 100;
+                  setAmount((maxAmount * percent).toFixed(4));
+                }
+              }}
+            >
+              {percentage}
+            </Button>
+          ))}
+        </div>
+
+        {/* Staking Details - Always visible */}
+        <div className="space-y-3 p-4 bg-everstake-bg-primary/50 rounded-lg">
+          <div className="flex justify-between text-sm">
+            <span className="text-everstake-gray-light">Estimated APY</span>
+            <span className="text-everstake-green font-medium">4.2%</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-everstake-gray-light">Validator Fee</span>
+            <span className="text-white">5%</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-everstake-gray-light">Annual Rewards</span>
+            <span className="text-white font-medium">
+              {amount ? `~${(parseFloat(amount) * 0.042).toFixed(4)} ETH` : '0 ETH'}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-everstake-gray-light">Unstaking Period</span>
+            <span className="text-white">~7 days</span>
+          </div>
+        </div>
+
+        {/* Connect Wallet or Stake Button */}
         {!isConnected ? (
-          <div className="text-center space-y-4">
-            <p className="text-everstake-gray-light">Connect your wallet to start staking</p>
+          <div className="space-y-4">
             <WalletSelector onConnect={handleWalletConnect} onError={handleWalletError} />
+            <p className="text-center text-everstake-gray-light text-sm">
+              Connect your wallet to start staking and earn rewards
+            </p>
           </div>
         ) : (
           <>
-            {/* Amount Input */}
-            <div>
-              <label className="text-everstake-gray-light text-sm mb-2 block">Amount to Stake</label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  placeholder="0.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="bg-everstake-bg-primary border-everstake-gray-dark/30 text-white pr-12 text-lg"
-                  disabled={isStaking || !isBalanceSufficient}
-                />
-                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-everstake-gray-light">ETH</span>
-              </div>
-              <div className="flex justify-between text-xs text-everstake-gray-light mt-2">
-                <span>Min: {MIN_STAKE_AMOUNT} ETH</span>
-                <span>Balance: {walletBalance} ETH</span>
-              </div>
-              {!isBalanceSufficient && (
-                <p className="text-red-400 text-xs mt-1">
-                  Insufficient balance. Minimum {MIN_STAKE_AMOUNT} ETH required.
-                </p>
-              )}
-            </div>
-
-            {/* Quick Amount Buttons */}
-            <div className="grid grid-cols-4 gap-2">
-              {['25%', '50%', '75%', 'MAX'].map((percentage) => (
-                <Button
-                  key={percentage}
-                  variant="outline"
-                  size="sm"
-                  className="border-everstake-gray-dark/30 text-everstake-gray-light hover:bg-everstake-bg-primary"
-                  disabled={isStaking || !isBalanceSufficient}
-                  onClick={() => {
-                    const maxAmount = parseFloat(walletBalance);
-                    if (percentage === 'MAX') {
-                      setAmount(maxAmount.toString());
-                    } else {
-                      const percent = parseInt(percentage) / 100;
-                      setAmount((maxAmount * percent).toFixed(4));
-                    }
-                  }}
-                >
-                  {percentage}
-                </Button>
-              ))}
-            </div>
-
-            {/* Staking Details */}
-            <div className="space-y-3 p-4 bg-everstake-bg-primary/50 rounded-lg">
-              <div className="flex justify-between text-sm">
-                <span className="text-everstake-gray-light">Estimated APY</span>
-                <span className="text-everstake-green font-medium">4.2%</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-everstake-gray-light">Validator Fee</span>
-                <span className="text-white">5%</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-everstake-gray-light">Annual Rewards</span>
-                <span className="text-white font-medium">
-                  {amount ? `~${(parseFloat(amount) * 0.042).toFixed(4)} ETH` : '0 ETH'}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-everstake-gray-light">Unstaking Period</span>
-                <span className="text-white">~7 days</span>
-              </div>
-            </div>
-
             {/* Stake Button */}
             <Button
               className="w-full bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center justify-center space-x-2"
