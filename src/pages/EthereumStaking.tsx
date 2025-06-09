@@ -55,6 +55,9 @@ const EthereumStaking = () => {
                 <p className="text-everstake-gray-light">Secure the network and earn rewards</p>
               </div>
             </div>
+            <p className="text-everstake-gray-light text-sm">
+              Audited by ChainSecurity and Ackee. Easy and safe.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

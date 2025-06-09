@@ -5,15 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, ArrowRight } from 'lucide-react';
 import { ethers } from 'ethers';
 import { toast } from '@/components/ui/sonner';
-import { WalletSelector } from './WalletSelector';
 
 export function StakeWidget() {
   const [amount, setAmount] = useState('');
   const [isStaking, setIsStaking] = useState(false);
   const [walletBalance, setWalletBalance] = useState('0.00');
   const [userAddress, setUserAddress] = useState<string>('');
-  const [walletName, setWalletName] = useState<string>('');
-  const [isConnected, setIsConnected] = useState(false);
 
   const STAKING_CONTRACT_ADDRESS = '0x3D640e9C3534518828535d1fc8DDa15c41979705';
   const MIN_STAKE_AMOUNT = 0.1;
@@ -21,47 +18,52 @@ export function StakeWidget() {
   // Función para obtener el balance de la wallet
   const fetchWalletBalance = async () => {
     try {
-      if (typeof window.ethereum === 'undefined' || !userAddress) {
+      if (typeof window.ethereum === 'undefined') {
         return;
       }
 
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const balance = await provider.getBalance(userAddress);
-      const balanceInEth = ethers.formatEther(balance);
-      setWalletBalance(parseFloat(balanceInEth).toFixed(4));
+      const accounts = await provider.listAccounts();
       
-      console.log('Wallet balance updated:', balanceInEth, 'ETH');
+      if (accounts.length > 0) {
+        const address = accounts[0].address;
+        setUserAddress(address);
+        
+        const balance = await provider.getBalance(address);
+        const balanceInEth = ethers.formatEther(balance);
+        setWalletBalance(parseFloat(balanceInEth).toFixed(4));
+        
+        console.log('Wallet balance updated:', balanceInEth, 'ETH');
+      }
     } catch (error) {
       console.error('Error fetching wallet balance:', error);
     }
   };
 
-  // Efecto para obtener el balance cuando se conecta la wallet
+  // Efecto para obtener el balance al cargar el componente
   useEffect(() => {
-    if (isConnected && userAddress) {
-      fetchWalletBalance();
+    fetchWalletBalance();
+
+    // Escuchar cambios de cuenta
+    if (typeof window.ethereum !== 'undefined') {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length > 0) {
+          fetchWalletBalance();
+        } else {
+          setWalletBalance('0.00');
+          setUserAddress('');
+        }
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
     }
-  }, [isConnected, userAddress]);
-
-  // Función para manejar la conexión de la wallet
-  const handleWalletConnect = (address: string, wallet: string) => {
-    setUserAddress(address);
-    setWalletName(wallet);
-    setIsConnected(true);
-    console.log(`Connected to ${wallet} with address: ${address}`);
-  };
-
-  // Función para manejar errores de conexión
-  const handleWalletError = (error: string) => {
-    toast.error(error);
-  };
+  }, []);
 
   const handleStake = async () => {
-    if (!isConnected) {
-      toast.error('Please connect your wallet first');
-      return;
-    }
-
     if (!amount || parseFloat(amount) <= 0) {
       toast.error('Please enter a valid amount to stake');
       return;
@@ -160,7 +162,7 @@ export function StakeWidget() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Amount Input - Always visible */}
+        {/* Amount Input */}
         <div>
           <label className="text-everstake-gray-light text-sm mb-2 block">Amount to Stake</label>
           <div className="relative">
@@ -170,27 +172,22 @@ export function StakeWidget() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="bg-everstake-bg-primary border-everstake-gray-dark/30 text-white pr-12 text-lg"
-              disabled={!isConnected || isStaking || (isConnected && !isBalanceSufficient)}
+              disabled={isStaking || !isBalanceSufficient}
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-everstake-gray-light">ETH</span>
           </div>
           <div className="flex justify-between text-xs text-everstake-gray-light mt-2">
             <span>Min: {MIN_STAKE_AMOUNT} ETH</span>
-            <span>Balance: {isConnected ? `${walletBalance} ETH` : 'Connect wallet'}</span>
+            <span>Balance: {walletBalance} ETH</span>
           </div>
-          {isConnected && !isBalanceSufficient && (
+          {!isBalanceSufficient && (
             <p className="text-red-400 text-xs mt-1">
               Insufficient balance. Minimum {MIN_STAKE_AMOUNT} ETH required.
             </p>
           )}
-          {!isConnected && (
-            <p className="text-everstake-gray-light text-xs mt-1">
-              Connect your wallet to see your balance and start staking.
-            </p>
-          )}
         </div>
 
-        {/* Quick Amount Buttons - Always visible */}
+        {/* Quick Amount Buttons */}
         <div className="grid grid-cols-4 gap-2">
           {['25%', '50%', '75%', 'MAX'].map((percentage) => (
             <Button
@@ -198,9 +195,8 @@ export function StakeWidget() {
               variant="outline"
               size="sm"
               className="border-everstake-gray-dark/30 text-everstake-gray-light hover:bg-everstake-bg-primary"
-              disabled={!isConnected || isStaking || (isConnected && !isBalanceSufficient)}
+              disabled={isStaking || !isBalanceSufficient}
               onClick={() => {
-                if (!isConnected) return;
                 const maxAmount = parseFloat(walletBalance);
                 if (percentage === 'MAX') {
                   setAmount(maxAmount.toString());
@@ -215,7 +211,7 @@ export function StakeWidget() {
           ))}
         </div>
 
-        {/* Staking Details - Always visible */}
+        {/* Staking Details */}
         <div className="space-y-3 p-4 bg-everstake-bg-primary/50 rounded-lg">
           <div className="flex justify-between text-sm">
             <span className="text-everstake-gray-light">Estimated APY</span>
@@ -237,44 +233,31 @@ export function StakeWidget() {
           </div>
         </div>
 
-        {/* Connect Wallet or Stake Button */}
-        {!isConnected ? (
-          <div className="space-y-4">
-            <WalletSelector onConnect={handleWalletConnect} onError={handleWalletError} />
-            <p className="text-center text-everstake-gray-light text-sm">
-              Connect your wallet to start staking and earn rewards
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* Stake Button */}
-            <Button
-              className="w-full bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center justify-center space-x-2"
-              disabled={!amount || parseFloat(amount) <= 0 || isStaking || !isBalanceSufficient || parseFloat(amount) < MIN_STAKE_AMOUNT}
-              onClick={handleStake}
-            >
-              {isStaking ? (
-                <span>Processing...</span>
-              ) : !isBalanceSufficient ? (
-                <span>Insufficient Balance</span>
-              ) : (
-                <>
-                  <span>Stake ETH</span>
-                  <ArrowRight size={16} />
-                </>
-              )}
-            </Button>
+        {/* Stake Button */}
+        <Button
+          className="w-full bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center justify-center space-x-2"
+          disabled={!amount || parseFloat(amount) <= 0 || isStaking || !isBalanceSufficient || parseFloat(amount) < MIN_STAKE_AMOUNT}
+          onClick={handleStake}
+        >
+          {isStaking ? (
+            <span>Processing...</span>
+          ) : !isBalanceSufficient ? (
+            <span>Insufficient Balance</span>
+          ) : (
+            <>
+              <span>Stake ETH</span>
+              <ArrowRight size={16} />
+            </>
+          )}
+        </Button>
 
-            {/* Connection Status */}
-            <div className="text-center">
-              <div className="flex items-center justify-center space-x-2 text-everstake-green text-sm">
-                <div className="w-2 h-2 bg-everstake-green rounded-full"></div>
-                <span>{walletName} Connected</span>
-              </div>
-              <p className="text-everstake-gray-light text-xs mt-1">{userAddress}</p>
-            </div>
-          </>
-        )}
+        {/* Connection Status */}
+        <div className="text-center">
+          <div className="flex items-center justify-center space-x-2 text-everstake-green text-sm">
+            <div className="w-2 h-2 bg-everstake-green rounded-full"></div>
+            <span>Wallet Connected</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
