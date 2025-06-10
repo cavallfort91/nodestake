@@ -1,7 +1,6 @@
 
-import { Bell, Search, ChevronDown, Wallet, LogOut } from 'lucide-react';
+import { ChevronDown, Wallet, LogOut, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useState, useEffect } from 'react';
 import { WalletSelector } from './WalletSelector';
@@ -67,32 +66,21 @@ export function Header() {
   return (
     <header className="bg-everstake-bg-secondary border-b border-everstake-gray-dark/20 px-6 py-4">
       <div className="flex items-center justify-between">
-        {/* Left Section */}
+        {/* Left Section - Empty for now */}
         <div className="flex items-center space-x-4">
-          <h1 className="text-white text-xl font-semibold">Dashboard</h1>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-everstake-gray-light" size={16} />
-            <Input
-              placeholder="Search validators, transactions..."
-              className="pl-10 w-80 bg-everstake-bg-card border-everstake-gray-dark/30 text-white placeholder:text-everstake-gray-light"
-            />
-          </div>
         </div>
 
         {/* Right Section */}
         <div className="flex items-center space-x-4">
-          {/* Network Selector */}
-          <div className="flex items-center space-x-2 bg-everstake-bg-card px-3 py-2 rounded-lg border border-everstake-gray-dark/30">
-            <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">Ξ</span>
-            </div>
-            <span className="text-white text-sm">Ethereum</span>
-            <ChevronDown size={16} className="text-everstake-gray-light" />
-          </div>
-
-          {/* Notifications */}
-          <Button variant="ghost" size="sm" className="text-everstake-gray-light hover:text-white">
-            <Bell size={20} />
+          {/* Help Button */}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-everstake-gray-light hover:text-white"
+            onClick={() => window.location.href = '/help'}
+          >
+            <HelpCircle size={20} />
+            <span className="ml-2">Help</span>
           </Button>
 
           {/* Wallet Connection */}
