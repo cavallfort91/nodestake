@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Info, Clock, Shield, Coins } from 'lucide-react';
 import { useEthPrice } from '@/hooks/useEthPrice';
@@ -49,7 +50,7 @@ export function StakingInfo() {
             </div>
             <div>
               <h4 className="text-white font-medium">Choose Amount</h4>
-              <p className="text-everstake-gray-light text-sm">Minimum 0.01 ETH required</p>
+              <p className="text-everstake-gray-light text-sm">Minimum 0.1 ETH required</p>
             </div>
           </div>
 
