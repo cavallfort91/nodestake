@@ -1,17 +1,7 @@
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
-
-const ethPriceData = [
-  { time: '7 days ago', price: 2280 },
-  { time: '6 days ago', price: 2310 },
-  { time: '5 days ago', price: 2295 },
-  { time: '4 days ago', price: 2350 },
-  { time: '3 days ago', price: 2320 },
-  { time: '2 days ago', price: 2380 },
-  { time: 'Yesterday', price: 2345 },
-  { time: 'Today', price: 2345.67 },
-];
+import { useEthPriceHistory } from '@/hooks/useEthPriceHistory';
 
 const chartConfig = {
   price: {
@@ -21,9 +11,27 @@ const chartConfig = {
 };
 
 export function EthPriceChart() {
+  const { data, isLoading, error } = useEthPriceHistory(7);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[200px] w-full flex items-center justify-center">
+        <div className="text-everstake-gray-light">Loading price data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-[200px] w-full flex items-center justify-center">
+        <div className="text-everstake-gray-light">Using cached data</div>
+      </div>
+    );
+  }
+
   return (
     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-      <LineChart data={ethPriceData}>
+      <LineChart data={data}>
         <XAxis 
           dataKey="time" 
           axisLine={false}
