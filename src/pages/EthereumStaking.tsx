@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { StakeWidget } from '@/components/StakeWidget';
 import { ValidatorCard } from '@/components/ValidatorCard';
 import { StakingInfo } from '@/components/StakingInfo';
-import { Zap, Shield, TrendingUp, Award, ExternalLink } from 'lucide-react';
+import { Zap, Shield, TrendingUp, Award } from 'lucide-react';
 
 const EthereumStaking = () => {
   const [selectedValidator, setSelectedValidator] = useState(1);
@@ -135,7 +134,7 @@ const EthereumStaking = () => {
               <div className="text-center mb-8">
                 <h2 className="text-white text-2xl font-bold mb-4">Security First</h2>
                 <p className="text-everstake-gray-light max-w-2xl mx-auto">
-                  Our platform has been thoroughly audited by leading security firms to ensure the highest level of protection for your staked assets.
+                  Our platform has been thoroughly audited by leading security firms (ChainSecurity and Ackee Blockchain) to ensure the highest level of protection for your staked assets.
                 </p>
               </div>
               
@@ -151,13 +150,6 @@ const EthereumStaking = () => {
                       Comprehensive smart contract audit ensuring protocol security and reliability.
                     </p>
                   </div>
-                  <a 
-                    href="#" 
-                    className="inline-flex items-center space-x-2 text-everstake-purple-primary hover:text-everstake-purple-secondary transition-colors text-sm font-medium"
-                  >
-                    <span>View Audit Report</span>
-                    <ExternalLink size={14} />
-                  </a>
                 </div>
 
                 {/* Ackee */}
@@ -171,13 +163,6 @@ const EthereumStaking = () => {
                       Independent security assessment validating our infrastructure and processes.
                     </p>
                   </div>
-                  <a 
-                    href="#" 
-                    className="inline-flex items-center space-x-2 text-everstake-purple-primary hover:text-everstake-purple-secondary transition-colors text-sm font-medium"
-                  >
-                    <span>View Audit Report</span>
-                    <ExternalLink size={14} />
-                  </a>
                 </div>
               </div>
 
