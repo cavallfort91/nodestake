@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -168,6 +169,8 @@ export function StakeWidget() {
           <div className="relative">
             <Input
               type="number"
+              min="0"
+              step="0.0001"
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
