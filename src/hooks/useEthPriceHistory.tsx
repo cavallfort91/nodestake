@@ -17,32 +17,6 @@ export function useEthPriceHistory(days: number = 7): EthPriceHistoryData {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const generateFallbackData = () => {
-    const fallbackData = [];
-    const basePrice = 2345.67;
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const variation = (Math.random() - 0.5) * 100; // Random variation of ±50
-      const price = Math.round((basePrice + variation) * 100) / 100;
-      
-      let timeLabel;
-      if (i === 0) {
-        timeLabel = 'Today';
-      } else if (i === 1) {
-        timeLabel = 'Yesterday';
-      } else {
-        timeLabel = `${i} days ago`;
-      }
-      
-      fallbackData.push({
-        time: timeLabel,
-        price: price
-      });
-    }
-    
-    return fallbackData;
-  };
-
   const fetchPriceHistory = async () => {
     try {
       setIsLoading(true);
@@ -58,6 +32,7 @@ export function useEthPriceHistory(days: number = 7): EthPriceHistoryData {
       
       // Transform the data to our format
       const transformedData = result.prices.map((price: [number, number], index: number) => {
+        const date = new Date(price[0]);
         const daysAgo = days - index;
         
         let timeLabel;
@@ -80,10 +55,17 @@ export function useEthPriceHistory(days: number = 7): EthPriceHistoryData {
     } catch (err) {
       console.error('Error fetching ETH price history:', err);
       setError('Failed to load price history');
-      // Use generated fallback data
-      const fallbackData = generateFallbackData();
-      setData(fallbackData);
-      console.log('Using fallback data:', fallbackData);
+      // Fallback to mock data
+      setData([
+        { time: '7 days ago', price: 2280 },
+        { time: '6 days ago', price: 2310 },
+        { time: '5 days ago', price: 2295 },
+        { time: '4 days ago', price: 2350 },
+        { time: '3 days ago', price: 2320 },
+        { time: '2 days ago', price: 2380 },
+        { time: 'Yesterday', price: 2345 },
+        { time: 'Today', price: 2345.67 },
+      ]);
     } finally {
       setIsLoading(false);
     }
