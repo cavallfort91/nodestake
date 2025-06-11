@@ -21,6 +21,7 @@ export function StakeWidget() {
   const fetchWalletBalance = async () => {
     try {
       if (typeof window.ethereum === 'undefined') {
+        console.log('MetaMask not detected, setting disconnected state');
         setIsWalletConnected(false);
         setUserAddress('');
         setWalletBalance('0.00');
@@ -29,6 +30,8 @@ export function StakeWidget() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const accounts = await provider.listAccounts();
+      
+      console.log('Accounts found in StakeWidget:', accounts.length);
       
       if (accounts.length > 0) {
         const address = accounts[0].address;
@@ -39,8 +42,10 @@ export function StakeWidget() {
         const balanceInEth = ethers.formatEther(balance);
         setWalletBalance(parseFloat(balanceInEth).toFixed(4));
         
+        console.log('Wallet connected in StakeWidget:', address);
         console.log('Wallet balance updated:', balanceInEth, 'ETH');
       } else {
+        console.log('No accounts found, setting disconnected state');
         setIsWalletConnected(false);
         setUserAddress('');
         setWalletBalance('0.00');
@@ -62,8 +67,11 @@ export function StakeWidget() {
       const handleAccountsChanged = (accounts: string[]) => {
         console.log('Accounts changed in StakeWidget:', accounts);
         if (accounts.length > 0) {
+          setUserAddress(accounts[0]);
+          setIsWalletConnected(true);
           fetchWalletBalance();
         } else {
+          console.log('No accounts after change, disconnecting');
           setWalletBalance('0.00');
           setUserAddress('');
           setIsWalletConnected(false);
