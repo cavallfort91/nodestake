@@ -6,10 +6,19 @@ import { StakingPool } from '@/components/StakingPool';
 import { RecentActivity } from '@/components/RecentActivity';
 import { EthPriceChart } from '@/components/EthPriceChart';
 import { useEthPrice } from '@/hooks/useEthPrice';
+import { useToast } from '@/hooks/use-toast';
 import { Wallet, TrendingUp, DollarSign, Zap } from 'lucide-react';
 
 const Index = () => {
   const { price: ethPrice, isLoading } = useEthPrice();
+  const { toast } = useToast();
+
+  const handleQuickAction = (action: string) => {
+    toast({
+      title: "No active staking found",
+      description: `Cannot ${action.toLowerCase()} - no active staking positions found.`,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-everstake-bg-primary flex w-full">
@@ -108,15 +117,24 @@ const Index = () => {
               <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-6">
                 <h3 className="text-white font-semibold mb-4">Quick Actions</h3>
                 <div className="space-y-3">
-                  <button className="w-full bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors">
+                  <button 
+                    onClick={() => handleQuickAction('Stake More ETH')}
+                    className="w-full bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors"
+                  >
                     <Zap size={16} />
                     <span>Stake More ETH</span>
                   </button>
-                  <button className="w-full border border-everstake-gray-dark/30 text-white hover:bg-everstake-bg-primary py-3 rounded-lg transition-colors">
+                  <button 
+                    onClick={() => handleQuickAction('Claim Rewards')}
+                    className="w-full bg-everstake-bg-card border border-everstake-gray-dark/30 text-white hover:bg-everstake-purple-primary hover:border-everstake-purple-primary py-3 rounded-lg transition-colors"
+                  >
                     Claim Rewards
                   </button>
-                  <button className="w-full border border-everstake-gray-dark/30 text-white hover:bg-everstake-bg-primary py-3 rounded-lg transition-colors">
-                    View All Validators
+                  <button 
+                    onClick={() => handleQuickAction('Transaction History')}
+                    className="w-full bg-everstake-bg-card border border-everstake-gray-dark/30 text-white hover:bg-everstake-purple-primary hover:border-everstake-purple-primary py-3 rounded-lg transition-colors"
+                  >
+                    Transaction History
                   </button>
                 </div>
               </div>
