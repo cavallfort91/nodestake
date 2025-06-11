@@ -1,5 +1,4 @@
-
-import { ChevronDown, Wallet, LogOut, HelpCircle } from 'lucide-react';
+import { ChevronDown, Wallet, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useState, useEffect } from 'react';
@@ -72,17 +71,6 @@ export function Header() {
 
         {/* Right Section */}
         <div className="flex items-center space-x-4">
-          {/* Help Button */}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-everstake-gray-light hover:text-white"
-            onClick={() => window.location.href = '/help'}
-          >
-            <HelpCircle size={20} />
-            <span className="ml-2">Help</span>
-          </Button>
-
           {/* Wallet Connection */}
           {isConnected ? (
             <DropdownMenu>
