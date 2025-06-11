@@ -75,6 +75,24 @@ export function StakingInfo() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Need More Help */}
+      <Card className="bg-everstake-bg-card border-everstake-gray-dark/20">
+        <CardHeader>
+          <CardTitle className="text-white text-lg">Need More Help?</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-everstake-gray-light text-sm mb-3">
+            Our support team is here to help you with any questions about staking.
+          </p>
+          <a 
+            href="mailto:support@nodestake.pro" 
+            className="text-everstake-purple-primary hover:text-everstake-purple-hover text-sm font-medium"
+          >
+            support@nodestake.pro
+          </a>
+        </CardContent>
+      </Card>
     </div>
   );
 }
