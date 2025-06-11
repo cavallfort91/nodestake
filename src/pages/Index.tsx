@@ -98,11 +98,9 @@ const Index = () => {
 
               <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-white font-semibold">Performance Overview - ETH Price</h3>
+                  <h3 className="text-white font-semibold">Performance Overview - ETH Price (7 Days)</h3>
                   <div className="flex space-x-2">
-                    <button className="text-everstake-purple-primary text-sm">7D</button>
-                    <button className="text-everstake-gray-light text-sm">30D</button>
-                    <button className="text-everstake-gray-light text-sm">1Y</button>
+                    <button className="text-everstake-purple-primary text-sm font-medium">7D</button>
                   </div>
                 </div>
                 <EthPriceChart />
