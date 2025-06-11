@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -292,21 +291,6 @@ export function StakeWidget() {
             </>
           )}
         </Button>
-
-        {/* Connection Status */}
-        <div className="text-center">
-          {isWalletConnected ? (
-            <div className="flex items-center justify-center space-x-2 text-everstake-green text-sm">
-              <div className="w-2 h-2 bg-everstake-green rounded-full"></div>
-              <span>Wallet Connected</span>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center space-x-2 text-red-400 text-sm">
-              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-              <span>Wallet Not Connected</span>
-            </div>
-          )}
-        </div>
       </CardContent>
     </Card>
   );
