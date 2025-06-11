@@ -194,6 +194,21 @@ export function StakeWidget() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Connection Status */}
+        <div className="text-center">
+          {isWalletConnected ? (
+            <div className="flex items-center justify-center space-x-2 text-everstake-green text-sm">
+              <div className="w-2 h-2 bg-everstake-green rounded-full"></div>
+              <span>Wallet Connected</span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center space-x-2 text-red-400 text-sm">
+              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+              <span>Wallet Not Connected</span>
+            </div>
+          )}
+        </div>
+
         {/* Amount Input */}
         <div>
           <label className="text-everstake-gray-light text-sm mb-2 block">Amount to Stake</label>
