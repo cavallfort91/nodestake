@@ -48,7 +48,6 @@ export function ValidatorCard({ name, fee, apy, staked, uptime, isSelected }: Va
       <div className="mt-3 pt-3 border-t border-everstake-gray-dark/20">
         <div className="flex items-center justify-between text-xs text-everstake-gray-light">
           <span>Commission: {fee}</span>
-          <span>Rank: #12</span>
         </div>
       </div>
     </div>
