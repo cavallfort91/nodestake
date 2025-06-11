@@ -12,6 +12,7 @@ export function StakeWidget() {
   const [isStaking, setIsStaking] = useState(false);
   const [walletBalance, setWalletBalance] = useState('0.00');
   const [userAddress, setUserAddress] = useState<string>('');
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
 
   const STAKING_CONTRACT_ADDRESS = '0x3D640e9C3534518828535d1fc8DDa15c41979705';
   const MIN_STAKE_AMOUNT = 0.1;
@@ -20,6 +21,7 @@ export function StakeWidget() {
   const fetchWalletBalance = async () => {
     try {
       if (typeof window.ethereum === 'undefined') {
+        setIsWalletConnected(false);
         return;
       }
 
@@ -29,15 +31,23 @@ export function StakeWidget() {
       if (accounts.length > 0) {
         const address = accounts[0].address;
         setUserAddress(address);
+        setIsWalletConnected(true);
         
         const balance = await provider.getBalance(address);
         const balanceInEth = ethers.formatEther(balance);
         setWalletBalance(parseFloat(balanceInEth).toFixed(4));
         
         console.log('Wallet balance updated:', balanceInEth, 'ETH');
+      } else {
+        setIsWalletConnected(false);
+        setUserAddress('');
+        setWalletBalance('0.00');
       }
     } catch (error) {
       console.error('Error fetching wallet balance:', error);
+      setIsWalletConnected(false);
+      setUserAddress('');
+      setWalletBalance('0.00');
     }
   };
 
@@ -53,6 +63,7 @@ export function StakeWidget() {
         } else {
           setWalletBalance('0.00');
           setUserAddress('');
+          setIsWalletConnected(false);
         }
       };
 
@@ -175,7 +186,7 @@ export function StakeWidget() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="bg-everstake-bg-primary border-everstake-gray-dark/30 text-white pr-12 text-lg"
-              disabled={isStaking || !isBalanceSufficient}
+              disabled={isStaking || !isBalanceSufficient || !isWalletConnected}
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-everstake-gray-light">ETH</span>
           </div>
@@ -183,7 +194,12 @@ export function StakeWidget() {
             <span>Min: {MIN_STAKE_AMOUNT} ETH</span>
             <span>Balance: {walletBalance} ETH</span>
           </div>
-          {!isBalanceSufficient && (
+          {!isWalletConnected && (
+            <p className="text-red-400 text-xs mt-1">
+              Please connect your wallet to continue.
+            </p>
+          )}
+          {isWalletConnected && !isBalanceSufficient && (
             <p className="text-red-400 text-xs mt-1">
               Insufficient balance. Minimum {MIN_STAKE_AMOUNT} ETH required.
             </p>
@@ -198,7 +214,7 @@ export function StakeWidget() {
               variant="outline"
               size="sm"
               className="border-everstake-gray-dark/30 text-everstake-gray-light hover:bg-everstake-bg-primary"
-              disabled={isStaking || !isBalanceSufficient}
+              disabled={isStaking || !isBalanceSufficient || !isWalletConnected}
               onClick={() => {
                 const maxAmount = parseFloat(walletBalance);
                 if (percentage === 'MAX') {
@@ -239,11 +255,13 @@ export function StakeWidget() {
         {/* Stake Button */}
         <Button
           className="w-full bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white flex items-center justify-center space-x-2"
-          disabled={!amount || parseFloat(amount) <= 0 || isStaking || !isBalanceSufficient || parseFloat(amount) < MIN_STAKE_AMOUNT}
+          disabled={!amount || parseFloat(amount) <= 0 || isStaking || !isBalanceSufficient || !isWalletConnected || parseFloat(amount) < MIN_STAKE_AMOUNT}
           onClick={handleStake}
         >
           {isStaking ? (
             <span>Processing...</span>
+          ) : !isWalletConnected ? (
+            <span>Connect Wallet</span>
           ) : !isBalanceSufficient ? (
             <span>Insufficient Balance</span>
           ) : (
@@ -256,10 +274,17 @@ export function StakeWidget() {
 
         {/* Connection Status */}
         <div className="text-center">
-          <div className="flex items-center justify-center space-x-2 text-everstake-green text-sm">
-            <div className="w-2 h-2 bg-everstake-green rounded-full"></div>
-            <span>Wallet Connected</span>
-          </div>
+          {isWalletConnected ? (
+            <div className="flex items-center justify-center space-x-2 text-everstake-green text-sm">
+              <div className="w-2 h-2 bg-everstake-green rounded-full"></div>
+              <span>Wallet Connected</span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center space-x-2 text-red-400 text-sm">
+              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+              <span>Wallet Not Connected</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
