@@ -22,6 +22,8 @@ export function StakeWidget() {
     try {
       if (typeof window.ethereum === 'undefined') {
         setIsWalletConnected(false);
+        setUserAddress('');
+        setWalletBalance('0.00');
         return;
       }
 
@@ -55,9 +57,10 @@ export function StakeWidget() {
   useEffect(() => {
     fetchWalletBalance();
 
-    // Escuchar cambios de cuenta
+    // Escuchar cambios de cuenta más frecuentemente
     if (typeof window.ethereum !== 'undefined') {
       const handleAccountsChanged = (accounts: string[]) => {
+        console.log('Accounts changed in StakeWidget:', accounts);
         if (accounts.length > 0) {
           fetchWalletBalance();
         } else {
@@ -67,10 +70,28 @@ export function StakeWidget() {
         }
       };
 
+      // También escuchar eventos de desconexión
+      const handleDisconnect = () => {
+        console.log('Wallet disconnected in StakeWidget');
+        setWalletBalance('0.00');
+        setUserAddress('');
+        setIsWalletConnected(false);
+      };
+
       window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('disconnect', handleDisconnect);
+
+      // Verificar el estado cada 2 segundos para capturar desconexiones
+      const interval = setInterval(() => {
+        fetchWalletBalance();
+      }, 2000);
 
       return () => {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        if (window.ethereum) {
+          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+          window.ethereum.removeListener('disconnect', handleDisconnect);
+        }
+        clearInterval(interval);
       };
     }
   }, []);
