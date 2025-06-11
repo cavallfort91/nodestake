@@ -49,7 +49,10 @@ const EthereumStaking = () => {
           <div className="mb-8">
             <div className="flex items-center space-x-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-xl font-bold">Ξ</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 1.5L5.25 12.75L12 16.5L18.75 12.75L12 1.5Z" fill="white" fillOpacity="0.8"/>
+                  <path d="M12 18L5.25 13.5L12 22.5L18.75 13.5L12 18Z" fill="white"/>
+                </svg>
               </div>
               <div>
                 <h1 className="text-white text-3xl font-bold">Ethereum Staking</h1>
