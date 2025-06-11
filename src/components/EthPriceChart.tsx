@@ -13,6 +13,10 @@ const chartConfig = {
 export function EthPriceChart() {
   const { data, isLoading, error } = useEthPriceHistory(7);
 
+  console.log('Chart data:', data);
+  console.log('Chart loading:', isLoading);
+  console.log('Chart error:', error);
+
   if (isLoading) {
     return (
       <div className="min-h-[200px] w-full flex items-center justify-center">
@@ -21,10 +25,10 @@ export function EthPriceChart() {
     );
   }
 
-  if (error) {
+  if (!data || data.length === 0) {
     return (
       <div className="min-h-[200px] w-full flex items-center justify-center">
-        <div className="text-everstake-gray-light">Using cached data</div>
+        <div className="text-everstake-gray-light">No data available</div>
       </div>
     );
   }
