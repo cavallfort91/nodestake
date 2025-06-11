@@ -13,23 +13,23 @@ const activities: ActivityItem[] = [
   {
     type: 'stake',
     amount: '32.0 ETH',
-    validator: 'Everstake Validator #1',
+    validator: 'NodeStake Validator #1',
     time: '2 hours ago',
-    hash: '0x1234...5678'
+    hash: '0x7f91...8434'
   },
   {
     type: 'reward',
     amount: '0.045 ETH',
-    validator: 'Everstake Validator #2',
+    validator: 'NodeStake Validator #2',
     time: '5 hours ago',
-    hash: '0x9876...1234'
+    hash: '0x6131...37b5'
   },
   {
     type: 'unstake',
     amount: '16.0 ETH',
-    validator: 'Everstake Validator #3',
+    validator: 'NodeStake Validator #3',
     time: '1 day ago',
-    hash: '0x5678...9012'
+    hash: '0x8c0B...F564'
   }
 ];
 
