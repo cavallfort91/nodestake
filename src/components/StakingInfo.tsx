@@ -1,102 +1,80 @@
 
-import { Info, ExternalLink, Shield, Clock, Zap } from 'lucide-react';
-import { EthPriceChart } from './EthPriceChart';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Info, Clock, Shield, Coins } from 'lucide-react';
+import { useEthPrice } from '@/hooks/useEthPrice';
 
 export function StakingInfo() {
+  const { price: ethPrice, isLoading } = useEthPrice();
+
   return (
     <div className="space-y-6">
-      {/* Performance Overview */}
-      <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-6">
-        <h3 className="text-white text-lg font-semibold mb-4 flex items-center">
-          <Info size={20} className="mr-2" />
-          Performance Overview
-        </h3>
-        <EthPriceChart />
-      </div>
+      {/* Network Stats */}
+      <Card className="bg-everstake-bg-card border-everstake-gray-dark/20">
+        <CardHeader>
+          <CardTitle className="text-white text-lg">Network Stats</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex justify-between">
+            <span className="text-everstake-gray-light">ETH Price</span>
+            <span className="text-white font-medium">
+              {isLoading ? 'Loading...' : ethPrice}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-everstake-gray-light">Total Staked</span>
+            <span className="text-white font-medium">28.5M ETH</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-everstake-gray-light">Active Validators</span>
+            <span className="text-white font-medium">891,234</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-everstake-gray-light">Average APY</span>
+            <span className="text-everstake-green font-medium">4.2%</span>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Staking Information */}
-      <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-6">
-        <h3 className="text-white text-lg font-semibold mb-4">Staking Information</h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-everstake-gray-light">Minimum Stake</span>
-            <span className="text-white font-medium">32 ETH</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-everstake-gray-light">Lock Period</span>
-            <span className="text-white font-medium">Until ETH 2.0 merge</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-everstake-gray-light">Reward Frequency</span>
-            <span className="text-white font-medium">Every epoch (~6.4 min)</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-everstake-gray-light">Slashing Risk</span>
-            <span className="text-everstake-green font-medium">Low</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 gap-4">
-        <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Shield className="text-everstake-purple-primary" size={16} />
-              <span className="text-everstake-gray-light text-sm">Network Security</span>
+      {/* Staking Guide */}
+      <Card className="bg-everstake-bg-card border-everstake-gray-dark/20">
+        <CardHeader>
+          <CardTitle className="text-white text-lg flex items-center space-x-2">
+            <Info size={20} />
+            <span>Staking Guide</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-start space-x-3">
+            <div className="p-2 bg-everstake-purple-primary/10 rounded-lg">
+              <Coins size={16} className="text-everstake-purple-primary" />
             </div>
-            <span className="text-white font-medium">99.9%</span>
-          </div>
-        </div>
-
-        <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Clock className="text-everstake-blue" size={16} />
-              <span className="text-everstake-gray-light text-sm">Avg Block Time</span>
+            <div>
+              <h4 className="text-white font-medium">Choose Amount</h4>
+              <p className="text-everstake-gray-light text-sm">Minimum 0.1 ETH required</p>
             </div>
-            <span className="text-white font-medium">12.1s</span>
           </div>
-        </div>
 
-        <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Zap className="text-everstake-green" size={16} />
-              <span className="text-everstake-gray-light text-sm">Active Validators</span>
+          <div className="flex items-start space-x-3">
+            <div className="p-2 bg-everstake-purple-primary/10 rounded-lg">
+              <Shield size={16} className="text-everstake-purple-primary" />
             </div>
-            <span className="text-white font-medium">500K+</span>
+            <div>
+              <h4 className="text-white font-medium">Select Validator</h4>
+              <p className="text-everstake-gray-light text-sm">Choose from our trusted validators</p>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Support */}
-      <div className="bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg p-6">
-        <h3 className="text-white text-lg font-semibold mb-4">Need Help?</h3>
-        <div className="space-y-3">
-          <a 
-            href="mailto:support@nodestake.pro" 
-            className="flex items-center text-everstake-purple-primary hover:text-everstake-purple-secondary transition-colors"
-          >
-            <ExternalLink size={16} className="mr-2" />
-            Contact Support
-          </a>
-          <a 
-            href="#" 
-            className="flex items-center text-everstake-purple-primary hover:text-everstake-purple-secondary transition-colors"
-          >
-            <ExternalLink size={16} className="mr-2" />
-            Documentation
-          </a>
-          <a 
-            href="#" 
-            className="flex items-center text-everstake-purple-primary hover:text-everstake-purple-secondary transition-colors"
-          >
-            <ExternalLink size={16} className="mr-2" />
-            FAQ
-          </a>
-        </div>
-      </div>
+          <div className="flex items-start space-x-3">
+            <div className="p-2 bg-everstake-purple-primary/10 rounded-lg">
+              <Clock size={16} className="text-everstake-purple-primary" />
+            </div>
+            <div>
+              <h4 className="text-white font-medium">Earn Rewards</h4>
+              <p className="text-everstake-gray-light text-sm">Start earning after activation</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
