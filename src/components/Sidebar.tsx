@@ -1,5 +1,5 @@
 
-import { Home, Layers, HelpCircle } from 'lucide-react';
+import { Home, Layers } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export function Sidebar() {
@@ -8,10 +8,6 @@ export function Sidebar() {
   const menuItems = [
     { name: 'Ethereum', icon: Layers, path: '/ethereum' },
     { name: 'Dashboard', icon: Home, path: '/dashboard' },
-  ];
-
-  const bottomMenuItems = [
-    { name: 'Help', icon: HelpCircle, path: '/help' },
   ];
 
   return (
@@ -30,31 +26,6 @@ export function Sidebar() {
       <div className="flex-1 p-4">
         <nav className="space-y-2">
           {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            
-            return (
-              <Link
-                key={item.name}
-                to={item.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-everstake-purple-primary text-white'
-                    : 'text-everstake-gray-light hover:bg-everstake-bg-card hover:text-white'
-                }`}
-              >
-                <Icon size={20} />
-                <span className="font-medium">{item.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="p-4 border-t border-everstake-gray-dark/20">
-        <nav className="space-y-2">
-          {bottomMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             
