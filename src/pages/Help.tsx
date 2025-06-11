@@ -1,4 +1,3 @@
-
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { HelpCircle, Mail, MessageSquare } from 'lucide-react';
+import { HelpCircle, Mail } from 'lucide-react';
 
 const Help = () => {
   const faqData = [
@@ -122,40 +121,9 @@ const Help = () => {
                     </div>
                     <div>
                       <h4 className="text-white font-medium">Email Support</h4>
-                      <p className="text-everstake-gray-light text-sm">support@nodestake.com</p>
+                      <p className="text-everstake-gray-light text-sm">support@nodestake.pro</p>
                     </div>
                   </div>
-
-                  <div className="flex items-start space-x-3">
-                    <div className="p-2 bg-everstake-purple-primary/10 rounded-lg">
-                      <MessageSquare size={16} className="text-everstake-purple-primary" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-medium">Live Chat</h4>
-                      <p className="text-everstake-gray-light text-sm">Available 24/7</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Links */}
-              <Card className="bg-everstake-bg-card border-everstake-gray-dark/20">
-                <CardHeader>
-                  <CardTitle className="text-white text-lg">Quick Links</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <button className="w-full text-left text-everstake-purple-primary hover:text-everstake-purple-secondary transition-colors text-sm">
-                    Staking Guide
-                  </button>
-                  <button className="w-full text-left text-everstake-purple-primary hover:text-everstake-purple-secondary transition-colors text-sm">
-                    Security Documentation
-                  </button>
-                  <button className="w-full text-left text-everstake-purple-primary hover:text-everstake-purple-secondary transition-colors text-sm">
-                    API Documentation
-                  </button>
-                  <button className="w-full text-left text-everstake-purple-primary hover:text-everstake-purple-secondary transition-colors text-sm">
-                    Terms of Service
-                  </button>
                 </CardContent>
               </Card>
             </div>
