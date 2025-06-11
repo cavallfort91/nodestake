@@ -119,7 +119,7 @@ const Index = () => {
                 <div className="space-y-3">
                   <button 
                     onClick={() => handleQuickAction('Stake More ETH')}
-                    className="w-full bg-everstake-purple-primary hover:bg-everstake-purple-secondary text-white py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors"
+                    className="w-full bg-everstake-bg-card border border-everstake-gray-dark/30 text-white hover:bg-everstake-purple-primary hover:border-everstake-purple-primary py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors"
                   >
                     <Zap size={16} />
                     <span>Stake More ETH</span>
