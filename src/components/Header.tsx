@@ -1,15 +1,13 @@
-import { ChevronDown, Wallet, LogOut, HelpCircle } from 'lucide-react';
+import { ChevronDown, Wallet, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { WalletSelector } from './WalletSelector';
 
 export function Header() {
   const [walletAddress, setWalletAddress] = useState<string>('');
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [connectedWallet, setConnectedWallet] = useState<string>('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if wallet is already connected
@@ -59,10 +57,6 @@ export function Header() {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const handleHelpClick = () => {
-    navigate('/help');
-  };
-
   return (
     <header className="bg-everstake-bg-secondary border-b border-everstake-gray-dark/20 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -72,17 +66,6 @@ export function Header() {
 
         {/* Right Section */}
         <div className="flex items-center space-x-4">
-          {/* Help Button */}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-everstake-gray-light hover:text-white"
-            onClick={handleHelpClick}
-          >
-            <HelpCircle size={20} />
-            <span className="ml-2">Help</span>
-          </Button>
-
           {/* Wallet Connection */}
           {isConnected ? (
             <DropdownMenu>

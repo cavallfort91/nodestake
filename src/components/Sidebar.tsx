@@ -1,5 +1,5 @@
 
-import { Home, Layers } from 'lucide-react';
+import { Home, Layers, HelpCircle } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export function Sidebar() {
@@ -8,6 +8,7 @@ export function Sidebar() {
   const menuItems = [
     { name: 'Ethereum', icon: Layers, path: '/ethereum' },
     { name: 'Dashboard', icon: Home, path: '/dashboard' },
+    { name: 'Help', icon: HelpCircle, path: '/help' },
   ];
 
   return (
