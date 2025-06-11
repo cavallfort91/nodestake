@@ -8,6 +8,7 @@ import { WalletSelector } from './WalletSelector';
 export function Header() {
   const [walletAddress, setWalletAddress] = useState<string>('');
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [status, setStatus] = useState<string>('Not connected');
   const [connectedWallet, setConnectedWallet] = useState<string>('');
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export function Header() {
           const address = accounts[0];
           setWalletAddress(address);
           setIsConnected(true);
+          setStatus('Connected');
           // Try to identify the wallet
           if (window.ethereum.isCoinbaseWallet) {
             setConnectedWallet('Coinbase Wallet');
@@ -41,16 +43,19 @@ export function Header() {
   const handleWalletConnect = (address: string, walletName: string) => {
     setWalletAddress(address);
     setIsConnected(true);
+    setStatus("✅ Connected");
     setConnectedWallet(walletName);
   };
 
   const handleWalletError = (error: string) => {
+    setStatus(`❌ ${error}`);
     setIsConnected(false);
   };
 
   const disconnectWallet = () => {
     setWalletAddress('');
     setIsConnected(false);
+    setStatus('Disconnected');
     setConnectedWallet('');
   };
 
@@ -111,6 +116,13 @@ export function Header() {
           </div>
         </div>
       </div>
+
+      {/* Status indicator (optional, can be removed) */}
+      {status !== 'Connected' && status !== 'Not connected' && (
+        <div className="mt-2 text-sm text-everstake-gray-light">
+          {status}
+        </div>
+      )}
     </header>
   );
 }
