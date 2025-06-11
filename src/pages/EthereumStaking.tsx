@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { StakeWidget } from '@/components/StakeWidget';
@@ -9,53 +9,6 @@ import { Zap, Shield, TrendingUp, Award } from 'lucide-react';
 
 const EthereumStaking = () => {
   const [selectedValidator, setSelectedValidator] = useState(1);
-  const [walletStatus, setWalletStatus] = useState('Not connected');
-  const [isConnected, setIsConnected] = useState(false);
-
-  useEffect(() => {
-    // Check wallet connection status
-    checkWalletStatus();
-
-    // Listen for wallet changes
-    if (typeof window.ethereum !== 'undefined') {
-      const handleAccountsChanged = () => {
-        checkWalletStatus();
-      };
-
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      
-      // Check status periodically
-      const interval = setInterval(checkWalletStatus, 2000);
-
-      return () => {
-        if (window.ethereum) {
-          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        }
-        clearInterval(interval);
-      };
-    }
-  }, []);
-
-  const checkWalletStatus = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          setWalletStatus('✅ Connected');
-          setIsConnected(true);
-        } else {
-          setWalletStatus('❌ Not connected');
-          setIsConnected(false);
-        }
-      } catch (error) {
-        setWalletStatus('❌ Not connected');
-        setIsConnected(false);
-      }
-    } else {
-      setWalletStatus('❌ No wallet detected');
-      setIsConnected(false);
-    }
-  };
 
   const validators = [
     {
@@ -109,13 +62,6 @@ const EthereumStaking = () => {
             {/* Left Column - Staking Widget */}
             <div className="lg:col-span-1">
               <StakeWidget />
-              
-              {/* Wallet Status - Below StakeWidget */}
-              <div className="mt-4 p-3 bg-everstake-bg-card border border-everstake-gray-dark/20 rounded-lg">
-                <div className="text-sm text-everstake-gray-light">
-                  Wallet Status: <span className={isConnected ? 'text-everstake-green' : 'text-red-400'}>{walletStatus}</span>
-                </div>
-              </div>
             </div>
 
             {/* Middle Column - Validators */}
