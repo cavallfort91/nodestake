@@ -6,7 +6,7 @@ import { StakingPool } from '@/components/StakingPool';
 import { RecentActivity } from '@/components/RecentActivity';
 import { EthPriceChart } from '@/components/EthPriceChart';
 import { useEthPrice } from '@/hooks/useEthPrice';
-import { Wallet, TrendingUp, DollarSign, Users, Zap } from 'lucide-react';
+import { Wallet, TrendingUp, DollarSign, Zap } from 'lucide-react';
 
 const Index = () => {
   const { price: ethPrice, isLoading } = useEthPrice();
@@ -25,35 +25,28 @@ const Index = () => {
             <p className="text-everstake-gray-light">Here's your staking portfolio overview</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <StatCard
               title="Total Staked"
-              value="128.5 ETH"
-              change="+12.5%"
-              changeType="positive"
+              value="0 ETH"
+              change="0%"
+              changeType="neutral"
               icon={Wallet}
               gradient={true}
             />
             <StatCard
               title="Total Rewards"
-              value="5.42 ETH"
-              change="+8.2%"
-              changeType="positive"
+              value="0 ETH"
+              change="0%"
+              changeType="neutral"
               icon={TrendingUp}
             />
             <StatCard
               title="USD Value"
-              value="$298,547"
-              change="+15.3%"
-              changeType="positive"
-              icon={DollarSign}
-            />
-            <StatCard
-              title="Active Validators"
-              value="4"
-              change="0"
+              value="$0"
+              change="0%"
               changeType="neutral"
-              icon={Users}
+              icon={DollarSign}
             />
           </div>
 
